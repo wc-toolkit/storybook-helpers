@@ -1,0 +1,106 @@
+{
+  "name": "@wc-toolkit/storybook-helpers",
+  "version": "0.0.0",
+  "description": "Helpers designed to make integrating Web Components with Storybook easier.",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "/dist"
+  ],
+  "scripts": {
+    "analyze": "npm run build && cem analyze",
+    "analyze:dev": "cem analyze --watch",
+    "changeset": "changeset add",
+    "build": "tsup src/index.ts --dts --format cjs,esm",
+    "clean": "git clean -fdX",
+    "deploy": "npm run build && npm publish",
+    "dev": "concurrently -k -r \"npm run analyze:dev\" \"npm run storybook\"",
+    "format": "prettier . --write",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "test": "npm run analyze && vitest --run --passWithNoTests",
+    "prepare": "husky",
+    "release": "pnpm run build && changeset publish --access=public",
+    "storybook": "storybook dev -c demo/.storybook -p 6006",
+    "build-storybook": "storybook build -c demo/.storybook"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wc-toolkit/storybook-helpers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wc-toolkit/storybook-helpers/issues"
+  },
+  "homepage": "https://wc-toolkit.com/documentation/storybook-helpers",
+  "devDependencies": {
+    "@changesets/cli": "^2.27.12",
+    "@chromatic-com/storybook": "^3.2.4",
+    "@custom-elements-manifest/analyzer": "^0.10.4",
+    "@eslint/js": "^9.19.0",
+    "@storybook/addon-essentials": "^8.5.8",
+    "@storybook/blocks": "^8.5.8",
+    "@storybook/test": "^8.5.8",
+    "@storybook/web-components": "^8.5.8",
+    "@storybook/web-components-vite": "^8.5.8",
+    "@types/node": "^22.13.2",
+    "@wc-toolkit/cem-utilities": "^1.0.0",
+    "@wc-toolkit/type-parser": "^1.0.1",
+    "comment-parser": "^1.4.1",
+    "concurrently": "^9.1.0",
+    "custom-elements-manifest": "2.1.0",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-storybook": "^0.11.3",
+    "husky": "^9.1.7",
+    "lit": "^3.2.1",
+    "prettier": "3.4.2",
+    "storybook": "^8.5.8",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^3.0.4"
+  },
+  "keywords": [
+    "custom-elements",
+    "custom-elements-manifest",
+    "web-components",
+    "web components",
+    "components",
+    "cem",
+    "storybook",
+    "@wc-toolkit/storybook-helpers",
+    "storybook web components"
+  ],
+  "lint-staged": {
+    "*.ts": "eslint --cache --fix",
+    "*.--write": "prettier --write"
+  },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
+  "dependencies": {
+    "@storybook/preview-api": "^7.0.0 || ^8.0.0"
+  },
+  "peerDependencies": {
+    "lit": "^2.0.0 || ^3.0.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
+  }
+}
