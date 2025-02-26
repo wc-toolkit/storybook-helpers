@@ -7,6 +7,8 @@ export default {
   outdir: "demo",
   /** Run in dev mode, provides extra logging */
   dev: false,
+  /** Enable special handling for litelement */
+  litelement: true,
   /** Output CEM path to `package.json`, defaults to true */
   packagejson: false,
   plugins: [typeParserPlugin({ debug: false })],
