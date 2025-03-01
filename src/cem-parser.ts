@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getMemberDescription, removeQuotes } from "@wc-toolkit/cem-utilities";
+import { getComponentEventsWithType, getComponentPublicMethods, getMemberDescription, removeQuotes } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes, ControlOptions } from "./storybook-types";
 import type { Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
+
+type ArgSet = {
+  resets?: ArgTypes;
+  args: ArgTypes;
+};
 
 let options: Options = {};
 
@@ -13,8 +18,14 @@ setTimeout(() => {
 export function getAttributesAndProperties(
   component?: Component,
   enabled = true
-): ArgTypes {
-  const properties: ArgTypes = {};
+): {
+  resets?: ArgTypes;
+  propArgs: ArgTypes;
+  attrArgs: ArgTypes;
+} {
+  const resets: ArgTypes = {};
+  const attrArgs: ArgTypes = {};
+  const propArgs: ArgTypes = {};
 
   component?.members?.forEach((member) => {
     if (member.kind !== "field") {
@@ -25,8 +36,9 @@ export function getAttributesAndProperties(
       (x) => member.name === x.fieldName
     );
     const propName = member.name;
+    const args = attribute ? attrArgs : propArgs;
 
-    properties[propName] = {
+    resets[propName] = {
       name: propName,
       table: {
         disable: true,
@@ -48,7 +60,7 @@ export function getAttributesAndProperties(
     const propType = cleanUpType(type);
     const defaultValue = removeQuotes(member.default || "");
 
-    properties[name] = {
+    args[name] = {
       name: name,
       description: getDescription(
         member.description,
@@ -74,25 +86,26 @@ export function getAttributesAndProperties(
 
     const values = propType?.split("|");
     if (values && values?.length > 1) {
-      properties[name].options = values.map((x) => removeQuotes(x)!);
+      args[name].options = values.map((x) => removeQuotes(x)!);
     }
   });
 
-  return properties;
+  return { resets, propArgs, attrArgs };
 }
 
 export function getReactProperties(
   component?: Component,
   enabled = true
-): ArgTypes {
-  const properties: ArgTypes = {};
+): ArgSet {
+  const resets: ArgTypes = {};
+  const args: ArgTypes = {};
 
   component?.members?.forEach((member) => {
     if (member.kind !== "field") {
       return;
     }
 
-    properties[member.name] = {
+    resets[member.name] = {
       name: member.name,
       table: {
         disable: true,
@@ -114,7 +127,7 @@ export function getReactProperties(
     const propName = `${member.name}`;
     const controlType = getControl(propType);
 
-    properties[propName] = {
+    args[propName] = {
       name: member.name,
       description: member.description,
       defaultValue: getDefaultValue(controlType, member.default),
@@ -136,22 +149,22 @@ export function getReactProperties(
 
     const values = propType?.split("|");
     if (values && values?.length > 1) {
-      properties[propName].options = values.map((x) => removeQuotes(x)!);
+      args[propName].options = values.map((x) => removeQuotes(x)!);
     }
   });
 
   // remove ref property if it exists
-  delete properties["ref"];
+  delete args["ref"];
 
-  return properties;
+  return { resets, args };
 }
 
-export function getReactEvents(component?: Component): ArgTypes {
-  const events: ArgTypes = {};
+export function getReactEvents(component?: Component): ArgSet {
+  const args: ArgTypes = {};
 
   component?.events?.forEach((event) => {
     const eventName = `on${event.name}`;
-    events[eventName] = {
+    args[eventName] = {
       name: eventName,
       description: event.description,
       control: false,
@@ -161,17 +174,17 @@ export function getReactEvents(component?: Component): ArgTypes {
     };
   });
 
-  return events;
+  return { args };
 }
 
 export function getCssProperties(
   component?: Component,
   enabled = true
-): ArgTypes {
-  const properties: ArgTypes = {};
+): ArgSet {
+  const args: ArgTypes = {};
 
   component?.cssProperties?.forEach((property) => {
-    properties[property.name] = {
+    args[property.name] = {
       name: property.name,
       description: property.description,
       defaultValue: property.default,
@@ -188,21 +201,22 @@ export function getCssProperties(
     };
   });
 
-  return properties;
+  return { args };
 }
 
-export function getCssParts(component?: Component, enabled = true): ArgTypes {
-  const parts: ArgTypes = {};
+export function getCssParts(component?: Component, enabled = true): ArgSet {
+  const resets: ArgTypes = {};
+  const args: ArgTypes = {};
 
   component?.cssParts?.forEach((part) => {
-    parts[part.name] = {
+    resets[part.name] = {
       name: part.name,
       table: {
         disable: true,
       },
     };
 
-    parts[`${part.name}-part`] = {
+    args[`${part.name}-part`] = {
       name: part.name,
       description: getDescription(
         part.description,
@@ -215,14 +229,43 @@ export function getCssParts(component?: Component, enabled = true): ArgTypes {
     };
   });
 
-  return parts;
+  return { resets, args };
 }
 
-export function getSlots(component?: Component, enabled = true): ArgTypes {
-  const slots: ArgTypes = {};
+export function getCssStates(component?: Component, enabled = true): ArgSet {
+  const resets: ArgTypes = {};
+  const args: ArgTypes = {};
+
+  component?.cssStates?.forEach((state) => {
+    resets[state.name] = {
+      name: state.name,
+      table: {
+        disable: true,
+      },
+    };
+
+    args[`${state.name}-state`] = {
+      name: state.name,
+      description: getDescription(
+        state.description,
+        enabled ? `${state.name}-state` : ""
+      ),
+      control: enabled ? "text" : false,
+      table: {
+        category: "css states",
+      },
+    };
+  });
+
+  return { resets, args };
+}
+
+export function getSlots(component?: Component, enabled = true): ArgSet {
+  const resets: ArgTypes = {};
+  const args: ArgTypes = {};
 
   component?.slots?.forEach((slot) => {
-    slots[slot.name] = {
+    resets[slot.name] = {
       name: slot.name,
       table: {
         disable: true,
@@ -230,7 +273,7 @@ export function getSlots(component?: Component, enabled = true): ArgTypes {
     };
 
     const slotName = slot.name || "default";
-    slots[`${slotName}-slot`] = {
+    args[`${slotName}-slot`] = {
       name: slotName,
       description: getDescription(
         slot.description,
@@ -243,27 +286,47 @@ export function getSlots(component?: Component, enabled = true): ArgTypes {
     };
   });
 
-  return slots;
+  return { resets, args };
 }
 
-export function getEvents(component?: Component): ArgTypes {
-  const events: ArgTypes = {};
-
-  component?.events?.forEach((event) => {
-    events[event.name] = {
+export function getEvents(component?: Component): ArgSet {
+  const args: ArgTypes = {};
+  const events = getComponentEventsWithType(component!);
+  events?.forEach((event) => {
+    args[`${event.name}-event`] = {
       name: event.name,
       description: event.description,
       control: false,
       table: {
         category: "events",
         type: {
-          summary: `CustomEvent${event.type ? `<${event.type.text}>` : ""}`,
+          summary: event.type.text,
         },
       },
     };
   });
 
-  return events;
+  return { args };
+}
+
+export function getMethods(component?: Component): ArgSet {
+  const args: ArgTypes = {};
+  const methods = getComponentPublicMethods(component!);
+  methods?.forEach((method) => {
+    args[`${method.name}-method`] = {
+      name: method.name,
+      description: method.description,
+      control: false,
+      table: {
+        category: "methods",
+        type: {
+          summary: method.type.text,
+        },
+      },
+    };
+  });
+
+  return { args };
 }
 
 function getDefaultValue(controlType: ControlOptions, defaultValue?: string) {

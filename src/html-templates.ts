@@ -6,11 +6,15 @@ import type { TemplateResult } from "lit";
 import type { Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "./storybook-types";
-import { getAttributesAndProperties, getCssParts, getCssProperties, getSlots } from "./cem-parser";
+import {
+  getAttributesAndProperties,
+  getCssParts,
+  getCssProperties,
+  getSlots,
+} from "./cem-parser";
 
 let argObserver: MutationObserver | undefined;
 let lastTagName: string | undefined;
-
 let options: Options = {};
 
 setTimeout(() => {
@@ -31,9 +35,7 @@ export function getTemplate(
   argTypes?: ArgTypes
 ): TemplateResult {
   if (!args) {
-    return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(
-      component!.tagName!
-    )}>`;
+    return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
   }
 
   // reset argObserver if the component changes
@@ -53,8 +55,8 @@ export function getTemplate(
 ${
   options.setComponentVariable
     ? html`<script>
-  window.component = document.querySelector("${component!.tagName!}");
-</script>`
+        window.component = document.querySelector("${component!.tagName!}");
+      </script>`
     : ""
 }
 `;
@@ -69,12 +71,13 @@ ${
 export function getStyleTemplate(component?: Component, args?: any) {
   const cssPropertiesTemplate = getCssPropTemplate(component!, args) || "";
   const cssPartsTemplate = getCssPartsTemplate(component!, args) || "";
-  const spacer = cssPropertiesTemplate && cssPartsTemplate ? '\n\n' : '';
+  const spacer = cssPropertiesTemplate && cssPartsTemplate ? "\n\n" : "";
 
-  return `${cssPropertiesTemplate}${cssPartsTemplate}`.replace(/\s+/g, "") !== ""
+  return `${cssPropertiesTemplate}${cssPartsTemplate}`.replace(/\s+/g, "") !==
+    ""
     ? html`<style>
-  ${cssPropertiesTemplate}${spacer}${unsafeStatic(cssPartsTemplate)}
-</style> `
+        ${cssPropertiesTemplate}${spacer}${unsafeStatic(cssPartsTemplate)}
+      </style> `
     : "";
 }
 
@@ -89,23 +92,19 @@ function getTemplateOperators(
   args: any,
   argTypes?: ArgTypes
 ) {
-  const attributes = getAttributesAndProperties(component);
+  const { propArgs, attrArgs } = getAttributesAndProperties(component);
   const attrOperators: any = {};
   const propOperators: any = {};
   const additionalAttrs: any = {};
 
-  Object.keys(attributes).forEach((key) => {
-    const attr = attributes[key];
-    if (attr?.table?.category !== "attributes") {
-      return;
-    }
-
+  Object.keys(attrArgs).forEach((key) => {
+    const attr = attrArgs[key];
     const attrName = attr.name;
     const attrValue = args![key] as unknown;
     const prop: string =
       (attr.control as any).type === "boolean" ? `?${attrName}` : attrName;
     if (
-      attrValue !== attributes[key].defaultValue ||
+      attrValue !== attrArgs[key].defaultValue ||
       options.renderDefaultValues
     ) {
       attrOperators[prop] = attrValue === "false" ? false : attrValue;
@@ -113,7 +112,7 @@ function getTemplateOperators(
   });
 
   Object.keys(args)
-    .filter((key) => attributes[key]?.table?.category === "properties")
+    .filter((key) => propArgs[key])
     .forEach((key) => {
       if (key.startsWith("on")) {
         return;
@@ -146,26 +145,27 @@ function getCssPropTemplate(component: Component, args: any) {
     return;
   }
 
-  const cssProperties = getCssProperties(component);
+  const { args: cssProperties } = getCssProperties(component);
   const values = Object.keys(cssProperties)
-      .map((key) => {
-        const isDefaultValue = args![key] === cssProperties[key].defaultValue;
-        const cssName = cssProperties[key].name;
-        const cssValue = args![key];
-        return cssValue &&
-          (!isDefaultValue ||
-            (isDefaultValue && options.renderDefaultValues))
-          ? `    ${cssName}: ${cssValue}`
-          : null;
-      })
-      .filter((value) => value !== null)
-      .join(";\n");
+    .map((key) => {
+      const isDefaultValue = args![key] === cssProperties[key].defaultValue;
+      const cssName = cssProperties[key].name;
+      const cssValue = args![key];
+      return cssValue &&
+        (!isDefaultValue || (isDefaultValue && options.renderDefaultValues))
+        ? `    ${cssName}: ${cssValue}`
+        : null;
+    })
+    .filter((value) => value !== null)
+    .join(";\n");
 
-  return values ? unsafeStatic(
-    `${component.tagName} {
+  return values
+    ? unsafeStatic(
+        `${component.tagName} {
 ${values};
   }`
-  ) : '';
+      )
+    : "";
 }
 
 /**
@@ -179,7 +179,7 @@ function getCssPartsTemplate(component: Component, args: any) {
     return;
   }
 
-  const cssParts = getCssParts(component);
+  const { args: cssParts } = getCssParts(component);
 
   return `${Object.keys(cssParts)
     .filter((key) => key.endsWith("-part"))
@@ -188,7 +188,10 @@ function getCssPartsTemplate(component: Component, args: any) {
       const cssPartValue: string = args![key];
       return cssPartValue.replace(/\s+/g, "") !== ""
         ? `${component?.tagName}::part(${cssPartName}) {
-${cssPartValue.split(`\n`).map(part => `    ${part}`).join('\n')}
+${cssPartValue
+  .split(`\n`)
+  .map((part) => `    ${part}`)
+  .join("\n")}
   }`
         : null;
     })
@@ -207,34 +210,33 @@ function getSlotsTemplate(component: Component, args: any) {
     return;
   }
 
-  const slots = getSlots(component);
+  const { args: slots } = getSlots(component);
 
-  const slotTemplates = 
-    `${Object.keys(slots)
-      .filter((key) => key.endsWith("-slot"))
-      .map((key) => {
-        // trim the "-slot" scope from arg name
-        const slotName = key === "default-slot" ? null : key.slice(0, -5);
-        const slotValue = args![key];
-        if(!slotName && slotValue) {
-          return `  ${slotValue}`;
+  const slotTemplates = `${Object.keys(slots)
+    .filter((key) => key.endsWith("-slot"))
+    .map((key) => {
+      // trim the "-slot" scope from arg name
+      const slotName = key === "default-slot" ? null : key.slice(0, -5);
+      const slotValue = args![key];
+      if (!slotName && slotValue) {
+        return `  ${slotValue}`;
+      }
+      const container = document.createElement("div");
+      container.innerHTML = slotValue;
+
+      for (const child of container.childNodes) {
+        if (child instanceof Text) {
+          return `  <span slot=${slotName}>${child.textContent}</span>`;
+        } else if (child instanceof Element) {
+          child.setAttribute("slot", slotName!);
+          return `  ${child.outerHTML}`;
         }
-        const container = document.createElement("div");
-        container.innerHTML = slotValue;
+      }
+    })
+    .filter((value) => value !== null)
+    .join("\n")}`;
 
-        for (const child of container.childNodes) {
-          if (child instanceof Text) {
-            return `  <span slot=${slotName}>${child.textContent}</span>`;
-          } else if (child instanceof Element) {
-            child.setAttribute("slot", slotName!);
-            return `  ${child.outerHTML}`;
-          }
-        }
-      })
-      .filter((value) => value !== null)
-      .join("\n")}`;
-
-  return slotTemplates.trim() ? unsafeStatic(`\n${slotTemplates}\n`) : '';
+  return slotTemplates.trim() ? unsafeStatic(`\n${slotTemplates}\n`) : "";
 }
 
 /**
@@ -260,7 +262,7 @@ function syncControls(component: Component) {
 function setArgObserver(component: Component) {
   let isUpdating = false;
   const updateArgs = useArgs()[1];
-  const attributes = getAttributesAndProperties(component);
+  const { attrArgs: attributes } = getAttributesAndProperties(component);
 
   if (argObserver) {
     return;
@@ -268,10 +270,7 @@ function setArgObserver(component: Component) {
 
   argObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (
-        (mutation.type as string) !== "attributes" ||
-        (mutation.attributeName === "class" && isUpdating)
-      ) {
+      if (mutation.attributeName === "class" && isUpdating) {
         return;
       }
 

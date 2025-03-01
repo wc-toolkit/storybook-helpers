@@ -31,7 +31,19 @@ export class MyElement extends LitElement {
 
   /** Adds a label to the component */
   @property()
-  label?: string;
+  label? = 'count is:';
+
+  /** Increments the `count`. */
+  increment() {
+    this.count!++;
+    this.dispatchEvent(new CustomEvent("count", { bubbles: true }));
+  }
+
+  /** Decrements the `count`. */
+  decrement() {
+    this.count!--;
+    this.dispatchEvent(new CustomEvent("count", { bubbles: true }));
+  }
 
   private _onClick() {
     this.count!++;
@@ -52,7 +64,7 @@ export class MyElement extends LitElement {
         <slot></slot>
         <div>
           <button @click=${this._onClick} part="button">
-            count is ${this.count}
+            ${this.label} ${this.count}
             <slot name="button-content"></slot>
           </button>
         </div>

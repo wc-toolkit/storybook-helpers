@@ -9,17 +9,34 @@ import {
   getReactProperties,
   getSlots,
   getEvents,
+  getCssStates,
+  getMethods,
 } from "./cem-parser.js";
 import { Component, getComponentByTagName } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "./storybook-types";
-import type { Options } from "./types";
+import type { Categories, Options, StoryOptions } from "./types";
 import type { Package } from "custom-elements-manifest";
+
+const defaultOptions: Options = {
+  typeRef: "parsedType",
+  categoryOrder: [
+    "attributes",
+    "properties",
+    "slots",
+    "cssProps",
+    "cssParts",
+    "cssStates",
+    "methods",
+    "events",
+  ],
+};
 
 /**
  * sets the global config for the Storybook helpers
  * @param options
  */
 export function setWcStorybookHelpersConfig(options: Options) {
+  options = { ...defaultOptions, ...options };
   (globalThis as any).__WC_STORYBOOK_HELPERS_CONFIG__ = options;
 }
 
@@ -28,7 +45,7 @@ export function setWcStorybookHelpersConfig(options: Options) {
  * @param tagName the tag name referenced in the Custom Elements Manifest
  * @returns An object containing the argTypes, reactArgTypes, events, styleTemplate, and template
  */
-export function getWcStorybookHelpers(tagName: string) {
+export function getWcStorybookHelpers(tagName: string, options?: StoryOptions) {
   /**
    *
    * uses the global window.__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__
@@ -45,7 +62,7 @@ export function getWcStorybookHelpers(tagName: string) {
 
   const component = getComponentByTagName(cem, tagName);
   const eventNames = component?.events?.map((event) => event.name) || [];
-  const argTypes = getArgTypes(component);
+  const argTypes = getArgTypes(component, options?.excludeCategories || []);
 
   return {
     args: getArgs(component),
@@ -64,15 +81,45 @@ export function getWcStorybookHelpers(tagName: string) {
  * @param component component object from the Custom Elements Manifest
  * @returns an object containing the `argTypes` for the component
  */
-function getArgTypes(component?: Component): ArgTypes {
-  // Attributes and properties must go last to prevent namespaced attributes from being overwritten
-  const argTypes: ArgTypes = {
-    ...getCssProperties(component),
-    ...getCssParts(component),
-    ...getSlots(component),
-    ...getAttributesAndProperties(component),
-    ...getEvents(component),
+function getArgTypes(
+  component?: Component,
+  excludeCategories?: Array<Categories>
+): ArgTypes {
+  const cssProps = getCssProperties(component);
+  const cssParts = getCssParts(component);
+  const slots = getSlots(component);
+  const attrsAndProps = getAttributesAndProperties(component);
+  const events = getEvents(component);
+  const cssStates = getCssStates(component);
+  const methods = getMethods(component);
+  const options: Options =
+    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+
+  const args: Record<Categories, ArgTypes> = {
+    attributes: attrsAndProps.attrArgs,
+    cssParts: cssParts.args,
+    cssProps: cssProps.args,
+    cssStates: cssStates.args,
+    events: events.args,
+    methods: methods.args,
+    properties: attrsAndProps.propArgs,
+    slots: slots.args,
   };
+
+  let argTypes: ArgTypes = {
+    ...cssProps.resets,
+    ...cssParts.resets,
+    ...slots.resets,
+    ...attrsAndProps.resets,
+    ...events.resets,
+    ...cssStates.resets,
+    ...methods.resets,
+  };
+
+  options.categoryOrder?.forEach((category) => {
+    if (excludeCategories?.includes(category)) return;
+    argTypes = { ...argTypes, ...(args[category] || {}) };
+  });
 
   return argTypes;
 }
@@ -99,7 +146,7 @@ function getArgs(
       }
 
       return {
-        [key]: defaultValue === undefined ? '' : defaultValue,
+        [key]: defaultValue === undefined ? "" : defaultValue,
       };
     })
     .reduce((acc, value) => ({ ...acc, ...value }), {});
@@ -125,14 +172,42 @@ function getDefaultValue(value?: string | number | boolean | object) {
  * @param component component object from the Custom Elements Manifest
  * @returns an object containing the `argTypes` for a React component
  */
-function getReactProps(component?: Component): ArgTypes {
-  const argTypes: ArgTypes = {
-    ...getReactProperties(component),
-    ...getReactEvents(component),
-    ...getCssProperties(component, false),
-    ...getCssParts(component, false),
-    ...getSlots(component, false),
+function getReactProps(component?: Component, excludeCategories?: Array<Categories>): ArgTypes {
+  const cssProps = getCssProperties(component);
+  const cssParts = getCssParts(component);
+  const slots = getSlots(component);
+  const attrsAndProps = getReactProperties(component);
+  const events = getReactEvents(component);
+  const cssStates = getCssStates(component);
+  const methods = getMethods(component);
+  const options: Options =
+    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+
+  const args: Record<Exclude<Categories, 'attributes'>, ArgTypes> = {
+    cssParts: cssParts.args,
+    cssProps: cssProps.args,
+    cssStates: cssStates.args,
+    events: events.args,
+    methods: methods.args,
+    properties: attrsAndProps.args,
+    slots: slots.args,
   };
+
+  let argTypes: ArgTypes = {
+    ...cssProps.resets,
+    ...cssParts.resets,
+    ...slots.resets,
+    ...attrsAndProps.resets,
+    ...events.resets,
+    ...cssStates.resets,
+    ...methods.resets,
+  };
+
+  (options.categoryOrder as Array<Exclude<Categories, 'attributes'>>)?.forEach((category) => {
+    if (excludeCategories?.includes(category)) return;
+    argTypes = { ...argTypes, ...(args[category] || {}) };
+  });
+
 
   return argTypes;
 }

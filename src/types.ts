@@ -1,13 +1,14 @@
-export {}
+export type Categories =
+  | "attributes"
+  | "cssParts"
+  | "cssProps"
+  | "cssStates"
+  | "events"
+  | "methods"
+  | "properties"
+  | "slots";
 
-declare global {
-  interface Global {
-    __WC_STORYBOOK_HELPERS_CONFIG__?: Options;
-  }
-  let globalThis: Global;
-}
-
-export interface Options {
+export type Options = {
   /** hides the `arg ref` label on each control */
   hideArgRef?: boolean;
   /** sets the custom type reference in the Custom Elements Manifest */
@@ -16,4 +17,11 @@ export interface Options {
   setComponentVariable?: boolean;
   /** renders default values for attributes and CSS properties */
   renderDefaultValues?: boolean;
-}
+  /** Category order */
+  categoryOrder?: Array<Categories>;
+};
+
+export type StoryOptions = {
+  /** Categories to exclude from these stories */
+  excludeCategories?: Array<Categories>;
+};
