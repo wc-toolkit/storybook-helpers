@@ -1,9 +1,9 @@
 import type { Preview } from "@storybook/web-components";
 import { setCustomElementsManifest } from "@storybook/web-components";
 import customElements from "../custom-elements.json" with { type: "json" };
-import { setWcStorybookHelpersConfig } from "../../src/index.js";
+import { setStorybookHelpersConfig } from "../../src/index.js";
 
-setWcStorybookHelpersConfig({
+setStorybookHelpersConfig({
   /** hides the `arg ref` label on each control */
   hideArgRef: false,
   /** sets the custom type reference in the Custom Elements Manifest */

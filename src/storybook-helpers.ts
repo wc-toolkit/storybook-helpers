@@ -37,7 +37,7 @@ const defaultOptions: Options = {
  * sets the global config for the Storybook helpers
  * @param options
  */
-export function setWcStorybookHelpersConfig(options: Options) {
+export function setStorybookHelpersConfig(options: Options) {
   options = { ...defaultOptions, ...options };
   (globalThis as any).__WC_STORYBOOK_HELPERS_CONFIG__ = options;
   userOptions = options;
@@ -48,7 +48,7 @@ export function setWcStorybookHelpersConfig(options: Options) {
  * @param tagName the tag name referenced in the Custom Elements Manifest
  * @returns An object containing the argTypes, reactArgTypes, events, styleTemplate, and template
  */
-export function getWcStorybookHelpers(
+export function getStorybookHelpers(
   tagName: string,
   options?: StoryOptions
 ): StoryHelpers {

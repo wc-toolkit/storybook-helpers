@@ -1,13 +1,13 @@
-import { getWcStorybookHelpers } from "../../../src/index.js";
+import { getStorybookHelpers } from "../../../src/index.js";
 import { html } from "lit";
 import "./my-element";
-import type { StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components";
 import type { MyElement } from "./my-element";
 
 const { args, events, argTypes, template } =
-  getWcStorybookHelpers("my-element");
+  getStorybookHelpers("my-element");
 
-const meta = {
+const meta: Meta<MyElement> = {
   title: "My Element",
   component: "my-element",
   args,

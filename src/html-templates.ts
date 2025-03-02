@@ -10,6 +10,7 @@ import {
   getAttributesAndProperties,
   getCssParts,
   getCssProperties,
+  getCssStates,
   getSlots,
 } from "./cem-parser";
 
@@ -71,13 +72,21 @@ ${
 export function getStyleTemplate(component?: Component, args?: any) {
   const cssPropertiesTemplate = getCssPropTemplate(component!, args) || "";
   const cssPartsTemplate = getCssPartsTemplate(component!, args) || "";
-  const spacer = cssPropertiesTemplate && cssPartsTemplate ? "\n\n" : "";
+  const cssStatesTemplate = getCssStatesTemplate(component!, args) || "";
+  const template = [
+    cssPropertiesTemplate,
+    unsafeStatic(cssPartsTemplate),
+    unsafeStatic(cssStatesTemplate),
+  ].join("\n\n");
 
-  return `${cssPropertiesTemplate}${cssPartsTemplate}`.replace(/\s+/g, "") !==
+  return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
+    /\s+/g,
     ""
+  ) !== ""
     ? html`<style>
-        ${cssPropertiesTemplate}${spacer}${unsafeStatic(cssPartsTemplate)}
-      </style> `
+  ${template}
+</style>
+`
     : "";
 }
 
@@ -191,6 +200,37 @@ function getCssPartsTemplate(component: Component, args: any) {
 ${cssPartValue
   .split(`\n`)
   .map((part) => `    ${part}`)
+  .join("\n")}
+  }`
+        : null;
+    })
+    .filter((value) => value !== null)
+    .join("\n\n")}`;
+}
+
+/**
+ * Gets the template used to render the component's CSS Shadow Parts in Storybook
+ * @param component component object from the Custom Elements Manifest
+ * @param args args object from Storybook story
+ * @returns formatted string with CSS shadow parts and their styles
+ */
+function getCssStatesTemplate(component: Component, args: any) {
+  if (!component?.cssStates?.length) {
+    return;
+  }
+
+  const { args: cssStates } = getCssStates(component);
+
+  return `${Object.keys(cssStates)
+    .filter((key) => key.endsWith("-state"))
+    .map((key) => {
+      const cssStateName = cssStates[key].name;
+      const cssStateValue: string = args![key];
+      return cssStateValue.replace(/\s+/g, "") !== ""
+        ? `${component?.tagName}:state(${cssStateName}) {
+${cssStateValue
+  .split(`\n`)
+  .map((state) => `    ${state}`)
   .join("\n")}
   }`
         : null;

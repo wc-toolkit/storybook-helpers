@@ -17,7 +17,7 @@ import { customElement, property } from "lit/decorators.js";
  * @cssprop [--card-border-style=solid] - The card border color
  * @cssprop [--card-border-radius=8px] - The card border radius
  *
- * @event count - This is a custom event
+ * @event {MyType} count - This is a custom event
  */
 @customElement("my-element")
 export class MyElement extends LitElement {
@@ -35,7 +35,11 @@ export class MyElement extends LitElement {
 
   /** Adds a label to the component */
   @property()
-  label2? = 'count is:';
+  union?: 'value1' | 'value2' | 'value3' | 'value4' = 'value1';
+
+  /** Adds a label to the component */
+  @property({ type: Boolean, reflect: true })
+  disabled?: boolean;
 
   /** Increments the `count`. */
   increment() {
@@ -67,7 +71,7 @@ export class MyElement extends LitElement {
         </div>
         <slot></slot>
         <div>
-          <button @click=${this._onClick} part="button">
+          <button ?disabled=${this.disabled} @click=${this._onClick} part="button">
             ${this.label} ${this.count}
             <slot name="button-content"></slot>
           </button>

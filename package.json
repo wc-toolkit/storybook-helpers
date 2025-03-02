@@ -56,7 +56,7 @@
     "@storybook/web-components": "^8.5.8",
     "@storybook/web-components-vite": "^8.5.8",
     "@types/node": "^22.13.2",
-    "@wc-toolkit/cem-utilities": "^1.0.0",
+    "@wc-toolkit/cem-utilities": "^1.0.2",
     "@wc-toolkit/type-parser": "^1.0.1",
     "comment-parser": "^1.4.1",
     "concurrently": "^9.1.0",

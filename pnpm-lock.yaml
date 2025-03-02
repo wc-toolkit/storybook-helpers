@@ -43,8 +43,8 @@ importers:
         specifier: ^22.13.2
         version: 22.13.2
       '@wc-toolkit/cem-utilities':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.2
+        version: 1.0.2
       '@wc-toolkit/type-parser':
         specifier: ^1.0.1
         version: 1.0.1
@@ -817,8 +817,8 @@ packages:
   '@vitest/utils@3.0.5':
     resolution: {integrity: sha512-N9AX0NUoUtVwKwy21JtwzaqR5L5R5A99GAbrHfCCXK1lp593i/3AZAXhSP43wRQuxYsflrdzEfXZFo1reR1Nkg==}
 
-  '@wc-toolkit/cem-utilities@1.0.0':
-    resolution: {integrity: sha512-IU7dp8vPzhDAd+CsyXiYg0wH2+iP161A1/y2wr7B0simizBqNozyHOgewwTVidEMHTBQ+Z42mGQUEcDGT9XQtw==}
+  '@wc-toolkit/cem-utilities@1.0.2':
+    resolution: {integrity: sha512-PElmOIV0nKO13pPvZCedn6xxvMIdW+DmYccpJ0TxzijUPdCnp84rQ9eOP0hVEKE9/hr4w4bAfN/C80shBYTe/g==}
 
   '@wc-toolkit/type-parser@1.0.1':
     resolution: {integrity: sha512-JywrOZEub+4J+oM8GeWZ//sKoD3CWXBqK6Ne9130XDPy+XXtu4V6Ai3J5oeNU7kfjns2TseMTZDf1evcn8DGkQ==}
@@ -3087,7 +3087,7 @@ snapshots:
       loupe: 3.1.3
       tinyrainbow: 2.0.0
 
-  '@wc-toolkit/cem-utilities@1.0.0': {}
+  '@wc-toolkit/cem-utilities@1.0.2': {}
 
   '@wc-toolkit/type-parser@1.0.1': {}
 
