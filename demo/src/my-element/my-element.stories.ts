@@ -1,4 +1,4 @@
-import { getWcStorybookHelpers } from "../../src/index.js";
+import { getWcStorybookHelpers } from "../../../src/index.js";
 import { html } from "lit";
 import "./my-element";
 import type { StoryObj } from "@storybook/web-components";

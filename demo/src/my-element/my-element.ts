@@ -33,6 +33,10 @@ export class MyElement extends LitElement {
   @property()
   label? = 'count is:';
 
+  /** Adds a label to the component */
+  @property()
+  label2? = 'count is:';
+
   /** Increments the `count`. */
   increment() {
     this.count!++;

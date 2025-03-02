@@ -1,3 +1,6 @@
+import { TemplateResult } from "lit";
+import { ArgTypes } from "./storybook-types";
+
 export type Categories =
   | "attributes"
   | "cssParts"
@@ -25,3 +28,13 @@ export type StoryOptions = {
   /** Categories to exclude from these stories */
   excludeCategories?: Array<Categories>;
 };
+
+export type StoryHelpers = {
+  args: Record<string, unknown>;
+  argTypes: ArgTypes;
+  reactArgs: Record<string, unknown>;
+  reactArgTypes: ArgTypes;
+  events: string[];
+  styleTemplate: (args?: Record<string, unknown>) => TemplateResult | "";
+  template: (args?: Record<string, unknown>, slot?: TemplateResult) => TemplateResult;
+}
