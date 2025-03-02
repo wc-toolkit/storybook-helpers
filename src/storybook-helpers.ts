@@ -122,15 +122,19 @@ function getArgTypes(
     slots: slots.args,
   };
 
-  const argTypes: ArgTypes = {
-    ...cssProps.resets,
-    ...cssParts.resets,
-    ...slots.resets,
-    ...attrsAndProps.resets,
-    ...events.resets,
-    ...cssStates.resets,
-    ...methods.resets,
-  };
+  const argTypes: ArgTypes = {};
+
+  // Combine all resets
+  Object.assign(
+    argTypes,
+    cssProps.resets,
+    cssParts.resets,
+    slots.resets,
+    attrsAndProps.resets,
+    events.resets,
+    cssStates.resets,
+    methods.resets
+  );
 
   userOptions.categoryOrder?.forEach((category) => {
     if (excludeCategories?.includes(category)) return;
@@ -150,16 +154,17 @@ function getArgs(
   component?: Component,
   argTypes?: ArgTypes
 ): Record<string, any> {
-  if (!argTypes) argTypes = getArgTypes(component);
-  return Object.entries(argTypes).reduce(
-    (acc: Record<string, unknown>, [key, value]) => {
-      if (value?.control) {
-        acc[key] = getDefaultValue(value.defaultValue) || "";
-      }
-      return acc;
-    },
-    {}
-  );
+  if (!argTypes) {
+    argTypes = getArgTypes(component);
+  }
+
+  const args: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(argTypes)) {
+    if (value?.control) {
+      args[key] = getDefaultValue(value.defaultValue) || "";
+    }
+  }
+  return args;
 }
 
 /**
@@ -168,11 +173,14 @@ function getArgs(
  * @returns the default value
  */
 function getDefaultValue(value?: string | number | boolean | object) {
-  try {
-    return JSON.parse(value as string);
-  } catch {
-    return value;
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   }
+  return value;
 }
 
 /**
