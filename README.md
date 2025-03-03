@@ -1,6 +1,6 @@
 <div align="center">
   
-![workbench with tools, html, css, javascript, and typescript logos](https://raw.githubusercontent.com/wc-toolkit/type-parser/refs/heads/main/assets/wc-toolkit_storybook.png)
+![workbench with tools, html, css, javascript, and storybook logo](https://raw.githubusercontent.com/wc-toolkit/type-parser/refs/heads/main/assets/wc-toolkit_storybook.png)
 
 </div>
 
@@ -24,7 +24,7 @@ There are a number of things that this helper library does to provide developers
   </a>
 </div>
 
-Be sure to check out the [official docs](https://wc-toolkit.com/integration/storybook-helpers) for more information on how to configure and use this.
+Be sure to check out the [official docs](https://wc-toolkit.com/integration/storybook) for more information on how to configure and use this.
 
 ## Before You Install
 
@@ -109,4 +109,4 @@ The function returns the following:
 - `template`: a function that will return a template for the component as well as provide two-way data binding for the component's API and the Storybook controls
 
 
-Be sure to check out the [official docs](https://wc-toolkit.com/integration/storybook-helpers) for more information on how to configure and use this.
+Be sure to check out the [official docs](https://wc-toolkit.com/integration/storybook) for more information on how to configure and use this.
