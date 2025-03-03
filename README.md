@@ -1,6 +1,6 @@
 <div align="center">
   
-![workbench with tools, html, css, javascript, and storybook logo](https://raw.githubusercontent.com/wc-toolkit/type-parser/refs/heads/main/assets/wc-toolkit_storybook.png)
+![workbench with tools, html, css, javascript, and storybook logo](https://raw.githubusercontent.com/wc-toolkit/storybook-helpers/refs/heads/main/assets/wc-toolkit_storybook.png)
 
 </div>
 
