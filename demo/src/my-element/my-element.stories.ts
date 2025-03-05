@@ -7,8 +7,6 @@ import type { MyElement } from "./my-element";
 const { args, events, argTypes, template } =
   getStorybookHelpers("my-element");
 
-console.log(args, events, argTypes, template);
-
 const meta: Meta<MyElement> = {
   title: "My Element",
   component: "my-element",

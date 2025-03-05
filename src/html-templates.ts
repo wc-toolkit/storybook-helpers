@@ -75,16 +75,16 @@ export function getStyleTemplate(component?: Component, args?: any) {
   const cssStatesTemplate = getCssStatesTemplate(component!, args) || "";
   const template = [
     cssPropertiesTemplate,
-    unsafeStatic(cssPartsTemplate),
-    unsafeStatic(cssStatesTemplate),
-  ].join("\n\n");
+    cssPartsTemplate,
+    cssStatesTemplate,
+  ].filter(x => x.length).join("\n\n");
 
   return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
     /\s+/g,
     ""
   ) !== ""
     ? html`<style>
-  ${template}
+${template}
 </style>
 `
     : "";
@@ -169,11 +169,9 @@ function getCssPropTemplate(component: Component, args: any) {
     .join(";\n");
 
   return values
-    ? unsafeStatic(
-        `${component.tagName} {
+    ? `  ${component.tagName} {
 ${values};
   }`
-      )
     : "";
 }
 
@@ -196,7 +194,7 @@ function getCssPartsTemplate(component: Component, args: any) {
       const cssPartName = cssParts[key].name;
       const cssPartValue: string = args![key];
       return cssPartValue.replace(/\s+/g, "") !== ""
-        ? `${component?.tagName}::part(${cssPartName}) {
+        ? `  ${component?.tagName}::part(${cssPartName}) {
 ${cssPartValue
   .split(`\n`)
   .map((part) => `    ${part}`)
@@ -227,7 +225,7 @@ function getCssStatesTemplate(component: Component, args: any) {
       const cssStateName = cssStates[key].name;
       const cssStateValue: string = args![key];
       return cssStateValue.replace(/\s+/g, "") !== ""
-        ? `${component?.tagName}:state(${cssStateName}) {
+        ? `  ${component?.tagName}:state(${cssStateName}) {
 ${cssStateValue
   .split(`\n`)
   .map((state) => `    ${state}`)
@@ -261,17 +259,27 @@ function getSlotsTemplate(component: Component, args: any) {
       if (!slotName && slotValue) {
         return `  ${slotValue}`;
       }
+
+      let slotContent = '';
       const container = document.createElement("div");
       container.innerHTML = slotValue;
 
       for (const child of container.childNodes) {
+        console.log(child);
+        if(child.textContent?.trim() === "" || child.textContent === "\n") {
+          slotContent += child.textContent;
+          continue;
+        }
+
         if (child instanceof Text) {
-          return `  <span slot=${slotName}>${child.textContent}</span>`;
+          slotContent += `  <span slot=${slotName}>${child.textContent}</span>`;
         } else if (child instanceof Element) {
           child.setAttribute("slot", slotName!);
-          return `  ${child.outerHTML}`;
+          slotContent += `  ${child.outerHTML}`;
         }
       }
+
+      return slotContent;
     })
     .filter((value) => value !== null)
     .join("\n")}`;

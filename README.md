@@ -24,7 +24,7 @@ There are a number of things that this helper library does to provide developers
   </a>
 </div>
 
-Be sure to check out the [official docs](https://wc-toolkit.com/integration/storybook) for more information on how to configure and use this.
+Be sure to check out the [official docs](https://wc-toolkit.com/integrations/storybook/) for more information on how to configure and use this.
 
 ## Before You Install
 
@@ -109,4 +109,4 @@ The function returns the following:
 - `template`: a function that will return a template for the component as well as provide two-way data binding for the component's API and the Storybook controls
 
 
-Be sure to check out the [official docs](https://wc-toolkit.com/integration/storybook) for more information on how to configure and use this.
+Be sure to check out the [official docs](https://wc-toolkit.com/integrations/storybook/) for more information on how to configure and use this.
