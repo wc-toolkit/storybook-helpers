@@ -1,5 +1,13 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.0.1
+
+### Patch Changes
+
+- 1eaa523: Fixed links in README to doc site
+- 1eaa523: Fixed CSS block rendering when content comes from controls
+- 1eaa523: Fixed slot rendering when content comes from controls
+
 ## 1.0.0
 
 ### Major Changes
