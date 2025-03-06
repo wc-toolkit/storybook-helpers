@@ -291,6 +291,17 @@ export function getSlots(component?: Component, enabled = true): ArgSet {
 
 export function getEvents(component?: Component): ArgSet {
   const args: ArgTypes = {};
+  const resets: ArgTypes = {};
+
+  component?.events?.forEach((event) => {
+    resets[event.name] = {
+      name: event.name,
+      table: {
+        disable: true,
+      },
+    };
+  });
+
   const events = getComponentEventsWithType(component!);
   events?.forEach((event) => {
     args[`${event.name}-event`] = {
@@ -306,11 +317,12 @@ export function getEvents(component?: Component): ArgSet {
     };
   });
 
-  return { args };
+  return { resets, args };
 }
 
 export function getMethods(component?: Component): ArgSet {
   const args: ArgTypes = {};
+
   const methods = getComponentPublicMethods(component!);
   methods?.forEach((method) => {
     args[`${method.name}-method`] = {

@@ -18,6 +18,8 @@ import { customElement, property } from "lit/decorators.js";
  * @cssprop [--card-border-radius=8px] - The card border radius
  *
  * @event {MyType} count - This is a custom event
+ * @event {MyType} fakeEvent - This is a custom event
+ * 
  */
 @customElement("my-element")
 export class MyElement extends LitElement {
