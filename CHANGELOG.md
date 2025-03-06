@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.0.2
+
+### Patch Changes
+
+- 52ce9a7: Removed duplicate event entries in the control table
+
 ## 1.0.1
 
 ### Patch Changes
