@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.0.3
+
+### Patch Changes
+
+- eb08aa0: Fixed issue where attributes are not removed when the default value is used
+
 ## 1.0.2
 
 ### Patch Changes
