@@ -117,6 +117,8 @@ function getTemplateOperators(
       options.renderDefaultValues
     ) {
       attrOperators[prop] = attrValue === "false" ? false : attrValue;
+    } else {
+      attrOperators[prop] = undefined;
     }
   });
 
