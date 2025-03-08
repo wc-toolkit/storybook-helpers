@@ -1,5 +1,13 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.0.4
+
+### Patch Changes
+
+- b3d876f: Fexed error where hidden categories still display the default values in the `args`
+- b3d876f: Fixed error when omitting CSS Props from story
+- b3d876f: Fixed error where empty content is slotted when the `slots` category is hidden
+
 ## 1.0.3
 
 ### Patch Changes
