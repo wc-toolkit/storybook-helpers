@@ -181,7 +181,18 @@ export function getCssProperties(
   component?: Component,
   enabled = true
 ): ArgSet {
+  const resets: ArgTypes = {};
   const args: ArgTypes = {};
+
+  component?.cssProperties?.forEach((part) => {
+    resets[part.name] = {
+      name: part.name,
+      table: {
+        disable: true,
+      },
+    };
+  });
+
 
   component?.cssProperties?.forEach((property) => {
     args[property.name] = {
@@ -201,7 +212,7 @@ export function getCssProperties(
     };
   });
 
-  return { args };
+  return { resets, args };
 }
 
 export function getCssParts(component?: Component, enabled = true): ArgSet {

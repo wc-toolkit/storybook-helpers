@@ -2,8 +2,9 @@
 import { spread } from "./spread";
 import { useArgs } from "@storybook/preview-api";
 import { html, unsafeStatic } from "lit/static-html.js";
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import type { TemplateResult } from "lit";
-import type { Options } from "./types";
+import type { Categories, Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "./storybook-types";
 import {
@@ -33,7 +34,8 @@ export function getTemplate(
   component?: Component,
   args?: any,
   slot?: TemplateResult,
-  argTypes?: ArgTypes
+  argTypes?: ArgTypes,
+  excludeCategories?: Categories[]
 ): TemplateResult {
   if (!args) {
     return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
@@ -48,10 +50,10 @@ export function getTemplate(
   const { attrOperators, propOperators, additionalAttrs } =
     getTemplateOperators(component!, args, argTypes);
   const operators = { ...attrOperators, ...propOperators, ...additionalAttrs };
-  const slotsTemplate = getSlotsTemplate(component!, args);
+  const slotsTemplate = getSlotsTemplate(component!, args, excludeCategories);
   syncControls(component!);
 
-  return html`${getStyleTemplate(component, args)}
+  return html`${getStyleTemplate(component, args, excludeCategories)}
 <${unsafeStatic(component!.tagName!)} ${spread(operators)}>${slotsTemplate}${slot || ""}</${unsafeStatic(component!.tagName!)}>
 ${
   options.setComponentVariable
@@ -69,25 +71,41 @@ ${
  * @param args args object from Storybook story
  * @returns styles in a tagged template literal
  */
-export function getStyleTemplate(component?: Component, args?: any) {
-  const cssPropertiesTemplate = getCssPropTemplate(component!, args) || "";
-  const cssPartsTemplate = getCssPartsTemplate(component!, args) || "";
-  const cssStatesTemplate = getCssStatesTemplate(component!, args) || "";
-  const template = [
-    cssPropertiesTemplate,
-    cssPartsTemplate,
-    cssStatesTemplate,
-  ].filter(x => x.length).join("\n\n");
+export function getStyleTemplate(
+  component?: Component,
+  args?: any,
+  excludeCategories?: Categories[]
+) {
+  const cssPropertiesTemplate = excludeCategory("cssProps", excludeCategories)
+    ? ""
+    : getCssPropTemplate(component!, args) || "";
+  const cssPartsTemplate = excludeCategory("cssParts", excludeCategories)
+    ? ""
+    : getCssPartsTemplate(component!, args) || "";
+  const cssStatesTemplate = excludeCategory("cssStates", excludeCategories)
+    ? ""
+    : getCssStatesTemplate(component!, args) || "";
+  const template = [cssPropertiesTemplate, cssPartsTemplate, cssStatesTemplate]
+    .filter((x) => x.length)
+    .join("\n\n");
 
   return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
     /\s+/g,
     ""
   ) !== ""
-    ? html`<style>
-${template}
-</style>
-`
+    ? unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult
     : "";
+}
+
+function excludeCategory(
+  category: Categories,
+  excludeCategories?: Categories[]
+) {
+  return (
+    !options.categoryOrder?.includes(category) ||
+    excludeCategories?.includes(category as Categories) ||
+    false
+  );
 }
 
 /**
@@ -245,8 +263,15 @@ ${cssStateValue
  * @param args args object from Storybook story
  * @returns formatted string with slots and their values
  */
-function getSlotsTemplate(component: Component, args: any) {
-  if (!component?.slots?.length) {
+function getSlotsTemplate(
+  component: Component,
+  args: any,
+  excludeCategories?: Categories[]
+) {
+  if (
+    !component?.slots?.length ||
+    excludeCategory("slots", excludeCategories)
+  ) {
     return;
   }
 
@@ -262,13 +287,13 @@ function getSlotsTemplate(component: Component, args: any) {
         return `  ${slotValue}`;
       }
 
-      let slotContent = '';
+      let slotContent = "";
       const container = document.createElement("div");
       container.innerHTML = slotValue;
 
       for (const child of container.childNodes) {
         console.log(child);
-        if(child.textContent?.trim() === "" || child.textContent === "\n") {
+        if (child.textContent?.trim() === "" || child.textContent === "\n") {
           slotContent += child.textContent;
           continue;
         }
@@ -283,7 +308,7 @@ function getSlotsTemplate(component: Component, args: any) {
 
       return slotContent;
     })
-    .filter((value) => value !== null)
+    .filter((value) => value !== null && value !== "")
     .join("\n")}`;
 
   return slotTemplates.trim() ? unsafeStatic(`\n${slotTemplates}\n`) : "";
