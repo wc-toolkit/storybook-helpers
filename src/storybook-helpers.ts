@@ -50,7 +50,7 @@ export function setStorybookHelpersConfig(options: Options) {
  */
 export function getStorybookHelpers(
   tagName: string,
-  options?: StoryOptions
+  options?: StoryOptions,
 ): StoryHelpers {
   userOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
   const cem = getManifest();
@@ -59,14 +59,14 @@ export function getStorybookHelpers(
   const argTypes = getArgTypes(component, options?.excludeCategories || []);
 
   const helpers = {
-    args: getArgs(component),
+    args: getArgs(argTypes),
     argTypes,
     reactArgs: getReactArgs(component),
     reactArgTypes: getReactProps(component),
     events: eventNames,
-    styleTemplate: (args?: any) => getStyleTemplate(component, args),
+    styleTemplate: (args?: any) => getStyleTemplate(component, args, options?.excludeCategories || []),
     template: (args?: any, slot?: TemplateResult) =>
-      getTemplate(component, args, slot, argTypes),
+      getTemplate(component, args, slot, argTypes, options?.excludeCategories || []),
   };
 
   return helpers;
@@ -150,14 +150,7 @@ function getArgTypes(
  * @param argTypes argTypes object for component
  * @returns an object containing the `args` for the component
  */
-function getArgs(
-  component?: Component,
-  argTypes?: ArgTypes
-): Record<string, any> {
-  if (!argTypes) {
-    argTypes = getArgTypes(component);
-  }
-
+function getArgs(argTypes: ArgTypes): Record<string, any> {
   const args: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(argTypes)) {
     if (value?.control) {
@@ -238,7 +231,7 @@ function getReactProps(
  * @returns an object containing the `args` for the component
  */
 function getReactArgs(component?: Component): Record<string, any> {
-  const args = getArgs(component, getReactProps(component));
+  const args = getArgs(getReactProps(component));
 
   const events = Object.entries(getReactEvents(component))
     .map(([key]) => {
