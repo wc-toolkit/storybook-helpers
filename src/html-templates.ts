@@ -292,7 +292,6 @@ function getSlotsTemplate(
       container.innerHTML = slotValue;
 
       for (const child of container.childNodes) {
-        console.log(child);
         if (child.textContent?.trim() === "" || child.textContent === "\n") {
           slotContent += child.textContent;
           continue;
