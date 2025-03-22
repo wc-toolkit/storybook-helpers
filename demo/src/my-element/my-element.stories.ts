@@ -6,15 +6,18 @@ import type { MyElement } from "./my-element";
 
 const { args, events, argTypes, template } = getStorybookHelpers('my-element', {
   excludeCategories: [
-    'cssParts',
-    'cssStates',
-    'events',
-    'methods',
-    'properties',
+    // 'cssParts',
+    // 'cssStates',
+    // 'events',
+    // 'methods',
+    // 'properties',
     // 'slots',
     // 'cssProps', // <-- if removed the error goes away
   ],
+  setComponentVariable: true,
 });
+
+console.log('args', argTypes);
 
 const meta: Meta<MyElement> = {
   title: "My Element",

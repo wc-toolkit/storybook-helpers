@@ -27,6 +27,8 @@ export type Options = {
 export type StoryOptions = {
   /** Categories to exclude from these stories */
   excludeCategories?: Array<Categories>;
+  /** Adds a <script> tag where a `component` variable will reference the story's component */
+  setComponentVariable?: boolean;
 };
 
 export type StoryHelpers = {
@@ -36,5 +38,8 @@ export type StoryHelpers = {
   reactArgTypes: ArgTypes;
   events: string[];
   styleTemplate: (args?: Record<string, unknown>) => TemplateResult | "";
-  template: (args?: Record<string, unknown>, slot?: TemplateResult) => TemplateResult;
-}
+  template: (
+    args?: Record<string, unknown>,
+    slot?: TemplateResult
+  ) => TemplateResult;
+};
