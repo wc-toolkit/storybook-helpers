@@ -1,5 +1,15 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.1.0
+
+### Minor Changes
+
+- 30a24ef: Added ability to set component variable at the component level using `setComponentVariable`
+
+### Patch Changes
+
+- 30a24ef: Added parser and formatter for properties with an object default value
+
 ## 1.0.4
 
 ### Patch Changes
