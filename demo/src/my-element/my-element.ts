@@ -43,6 +43,16 @@ export class MyElement extends LitElement {
   @property({ type: Boolean, reflect: true })
   disabled?: boolean;
 
+  /** Test object property */
+  @property({ attribute: false, type: Object })
+  jsonHint: object = {
+    docsHint: 'Click on the Storybook logo to learn more',
+  };
+
+  /** Test object property */
+  @property({ attribute: false, type: Array })
+  hobbies: Array<string> = ['baseball', 'soccer', 'tennis'];
+
   /** Increments the `count`. */
   increment() {
     this.count!++;

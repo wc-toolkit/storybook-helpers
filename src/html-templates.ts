@@ -2,7 +2,7 @@
 import { spread } from "./spread";
 import { useArgs } from "@storybook/preview-api";
 import { html, unsafeStatic } from "lit/static-html.js";
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
 import type { Categories, Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
@@ -35,7 +35,8 @@ export function getTemplate(
   args?: any,
   slot?: TemplateResult,
   argTypes?: ArgTypes,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
+  setComponentVariable?: boolean
 ): TemplateResult {
   if (!args) {
     return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
@@ -56,10 +57,12 @@ export function getTemplate(
   return html`${getStyleTemplate(component, args, excludeCategories)}
 <${unsafeStatic(component!.tagName!)} ${spread(operators)}>${slotsTemplate}${slot || ""}</${unsafeStatic(component!.tagName!)}>
 ${
-  options.setComponentVariable
-    ? html`<script>
-        window.component = document.querySelector("${component!.tagName!}");
-      </script>`
+  options.setComponentVariable || setComponentVariable
+    ? unsafeHTML(
+        "<script>\n  window.component = document.querySelector(" +
+          component!.tagName! +
+          ");\n</script>"
+      )
     : ""
 }
 `;
@@ -93,7 +96,7 @@ export function getStyleTemplate(
     /\s+/g,
     ""
   ) !== ""
-    ? unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult
+    ? (unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult)
     : "";
 }
 

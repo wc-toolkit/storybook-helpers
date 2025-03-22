@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getComponentEventsWithType, getComponentPublicMethods, getMemberDescription, removeQuotes } from "@wc-toolkit/cem-utilities";
+import {
+  getComponentEventsWithType,
+  getComponentPublicMethods,
+  getMemberDescription,
+  removeQuotes,
+} from "@wc-toolkit/cem-utilities";
 import type { ArgTypes, ControlOptions } from "./storybook-types";
 import type { Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
@@ -59,6 +64,7 @@ export function getAttributesAndProperties(
       : member?.type?.text;
     const propType = cleanUpType(type);
     const defaultValue = removeQuotes(member.default || "");
+    const control = getControl(propType, attribute !== undefined);
 
     args[name] = {
       name: name,
@@ -67,10 +73,15 @@ export function getAttributesAndProperties(
         propName,
         member.deprecated as string
       ),
-      defaultValue: defaultValue === "''" ? "" : defaultValue,
+      defaultValue:
+        defaultValue === "''"
+          ? ""
+          : control === "object"
+            ? JSON.parse(formatToValidJson(defaultValue))
+            : defaultValue,
       control: enabled
         ? {
-            type: getControl(propType, attribute !== undefined),
+            type: control,
           }
         : false,
       table: {
@@ -192,7 +203,6 @@ export function getCssProperties(
       },
     };
   });
-
 
   component?.cssProperties?.forEach((property) => {
     args[property.name] = {
@@ -436,4 +446,21 @@ function getDescription(
   return options.hideArgRef || !argRef
     ? desc
     : (desc += `\n\n\narg ref - \`${argRef}\``);
+}
+
+/**
+ * Converts a JavaScript-like object string into valid JSON format.
+ * @param input The input string to format.
+ * @returns A valid JSON string.
+ */
+function formatToValidJson(input: string): string {
+  return (
+    input
+      // Replace single quotes around values with double quotes
+      .replace(/'([^']+)'/g, '"$1"')
+      // Add double quotes around unquoted keys
+      .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":')
+      // Remove trailing commas before closing braces/brackets
+      .replace(/,\s*(}|])/g, "$1")
+  );
 }

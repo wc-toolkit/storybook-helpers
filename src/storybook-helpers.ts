@@ -66,7 +66,7 @@ export function getStorybookHelpers(
     events: eventNames,
     styleTemplate: (args?: any) => getStyleTemplate(component, args, options?.excludeCategories || []),
     template: (args?: any, slot?: TemplateResult) =>
-      getTemplate(component, args, slot, argTypes, options?.excludeCategories || []),
+      getTemplate(component, args, slot, argTypes, options?.excludeCategories || [], options?.setComponentVariable),
   };
 
   return helpers;
