@@ -1,5 +1,5 @@
 <div align="center">
-  
+
 ![workbench with tools, html, css, javascript, and storybook logo](https://raw.githubusercontent.com/wc-toolkit/storybook-helpers/refs/heads/main/assets/wc-toolkit_storybook.png)
 
 </div>
@@ -77,7 +77,7 @@ setStorybookHelpersConfig(options);
 
 ## Setup
 
-Import the storybook helpers into your story and get the appropriate helpers by passing your element's tag name into the Storybook helper function. 
+Import the storybook helpers into your story and get the appropriate helpers by passing your element's tag name into the Storybook helper function.
 the function will return the helper data you can assign to the Storybook `meta` object.
 
 ```ts
@@ -85,14 +85,14 @@ the function will return the helper data you can assign to the Storybook `meta` 
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers";
 
-const { events, args, argTypes, template } = getStorybookHelpers("my-element");
+const { events, args, argTypes, template } = getStorybookHelpers<MyElement>("my-element");
 
 const meta: Meta<MyElement> = {
   title: "Components/My Element",
   component: "my-element",
   args,
   argTypes,
-  render: (args) => template(args)
+  render: (args) => template(args),
   parameters: {
     actions: {
       handles: events,
@@ -103,10 +103,10 @@ export default meta;
 ```
 
 The function returns the following:
+
 - `events`: an array of events that will be captured in the actions tab
 - `args`: this provides the default values for the component `args`
 - `argTypes`: an object tha configures the controls for the component based on the data from the Custom Elements Manifest
 - `template`: a function that will return a template for the component as well as provide two-way data binding for the component's API and the Storybook controls
-
 
 Be sure to check out the [official docs](https://wc-toolkit.com/integrations/storybook/) for more information on how to configure and use this.

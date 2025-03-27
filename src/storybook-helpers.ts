@@ -48,10 +48,10 @@ export function setStorybookHelpersConfig(options: Options) {
  * @param tagName the tag name referenced in the Custom Elements Manifest
  * @returns An object containing the argTypes, reactArgTypes, events, styleTemplate, and template
  */
-export function getStorybookHelpers(
+export function getStorybookHelpers<T>(
   tagName: string,
-  options?: StoryOptions,
-): StoryHelpers {
+  options?: StoryOptions
+): StoryHelpers<T> {
   userOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
   const cem = getManifest();
   const component = getComponent(cem, tagName);
@@ -59,14 +59,22 @@ export function getStorybookHelpers(
   const argTypes = getArgTypes(component, options?.excludeCategories || []);
 
   const helpers = {
-    args: getArgs(argTypes),
+    args: getArgs<T>(argTypes),
     argTypes,
     reactArgs: getReactArgs(component),
     reactArgTypes: getReactProps(component),
     events: eventNames,
-    styleTemplate: (args?: any) => getStyleTemplate(component, args, options?.excludeCategories || []),
+    styleTemplate: (args?: any) =>
+      getStyleTemplate(component, args, options?.excludeCategories || []),
     template: (args?: any, slot?: TemplateResult) =>
-      getTemplate(component, args, slot, argTypes, options?.excludeCategories || [], options?.setComponentVariable),
+      getTemplate(
+        component,
+        args,
+        slot,
+        argTypes,
+        options?.excludeCategories || [],
+        options?.setComponentVariable
+      ),
   };
 
   return helpers;
@@ -150,11 +158,11 @@ function getArgTypes(
  * @param argTypes argTypes object for component
  * @returns an object containing the `args` for the component
  */
-function getArgs(argTypes: ArgTypes): Record<string, any> {
-  const args: Record<string, unknown> = {};
+function getArgs<T>(argTypes: ArgTypes): Partial<T> {
+  const args: Partial<T> = {};
   for (const [key, value] of Object.entries(argTypes)) {
     if (value?.control) {
-      args[key] = getDefaultValue(value.defaultValue) || "";
+      args[key as keyof T] = getDefaultValue(value.defaultValue) || "";
     }
   }
   return args;
