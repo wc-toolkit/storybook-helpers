@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.1.1
+
+### Patch Changes
+
+- 1e0f97a: Add type parameter to getStorybookHelpers so that types match Meta<T> from Storybook.
+
 ## 1.1.0
 
 ### Minor Changes
