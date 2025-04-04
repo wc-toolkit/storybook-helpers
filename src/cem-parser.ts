@@ -63,7 +63,7 @@ export function getAttributesAndProperties(
       ? (member as any)[`${options.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
-    const defaultValue = removeQuotes(member.default || "");
+    const defaultValue = member.readonly ? undefined : removeQuotes(member.default || "");
     const control = getControl(propType, attribute !== undefined);
 
     args[name] = {
@@ -73,13 +73,14 @@ export function getAttributesAndProperties(
         propName,
         member.deprecated as string
       ),
-      defaultValue:
-        defaultValue === "''"
-          ? ""
-          : control === "object"
-            ? JSON.parse(formatToValidJson(defaultValue))
-            : defaultValue,
-      control: enabled
+      defaultValue: defaultValue
+          ? defaultValue === "''"
+            ? ""
+            : control === "object"
+              ? JSON.parse(formatToValidJson(defaultValue))
+              : defaultValue
+          : undefined,
+      control: enabled && !member.readonly
         ? {
             type: control,
           }
@@ -142,7 +143,7 @@ export function getReactProperties(
       name: member.name,
       description: member.description,
       defaultValue: getDefaultValue(controlType, member.default),
-      control: enabled
+      control: enabled && !member.readonly
         ? {
             type: controlType,
           }

@@ -53,6 +53,13 @@ export class MyElement extends LitElement {
   @property({ attribute: false, type: Array })
   hobbies: Array<string> = ['baseball', 'soccer', 'tennis'];
 
+  /**
+   * Readonly - returns the time remaining
+   */
+  get timeRemaining(): number {
+    return Math.round(10000 * Math.random());
+  }
+
   /** Increments the `count`. */
   increment() {
     this.count!++;
