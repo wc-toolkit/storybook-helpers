@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.1.2
+
+### Patch Changes
+
+- 00494f5: added readonly support for properties
+
 ## 1.1.1
 
 ### Patch Changes
