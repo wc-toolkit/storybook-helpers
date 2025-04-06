@@ -144,12 +144,12 @@ function getArgTypes(
     methods.resets
   );
 
-  userOptions.categoryOrder?.forEach((category) => {
+  getCategoriesOrder().forEach((category) => {
     if (excludeCategories?.includes(category)) return;
     Object.assign(argTypes, args[category]);
   });
 
-  return argTypes;
+  return sortByCategories(argTypes, args);
 }
 
 /**
@@ -200,8 +200,6 @@ function getReactProps(
   const events = getReactEvents(component);
   const cssStates = getCssStates(component);
   const methods = getMethods(component);
-  const options: Options =
-    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 
   const args: Record<Exclude<Categories, "attributes">, ArgTypes> = {
     cssParts: cssParts.args,
@@ -223,14 +221,14 @@ function getReactProps(
     ...methods.resets,
   };
 
-  (options.categoryOrder as Array<Exclude<Categories, "attributes">>)?.forEach(
+  (getCategoriesOrder() as Array<Exclude<Categories, "attributes">>)?.forEach(
     (category) => {
       if (excludeCategories?.includes(category)) return;
       argTypes = { ...argTypes, ...(args[category] || {}) };
     }
   );
 
-  return argTypes;
+  return sortByCategories(argTypes, {...args, attributes: {}});
 }
 
 /**
@@ -250,4 +248,38 @@ function getReactArgs(component?: Component): Record<string, any> {
     .reduce((acc, value) => ({ ...acc, ...value }), {});
 
   return { ...args, ...events };
+}
+
+/**
+ * Compute the order of categories by mixing the default order and the order
+ * configured by the user
+ * @returns an array of Categories
+ */
+function getCategoriesOrder(): Array<Categories> {
+  const configuredOrder = userOptions.categoryOrder || [];
+   return [
+      ...configuredOrder,
+      ...defaultOptions.categoryOrder!
+          .filter(category => !configuredOrder.includes(category))
+    ]
+}
+
+/**
+ * Sorts the entries of the given ArgTypes using the configured categories order
+ * @param argTypes the object to sort
+ * @param args the dictionary of arguments by category
+ * @returns a copy of the `argTypes` with entries `sorted`
+ */
+function sortByCategories(argTypes: ArgTypes, args: Record<Categories, ArgTypes>): ArgTypes {
+  const sortedArgTypes: ArgTypes = Object.assign({}, argTypes);
+  getCategoriesOrder().forEach((category) => {
+    // Force order by not using the Object.assign method
+    Object.keys(args[category]!).forEach(k => {
+      if (argTypes[k]) {
+        delete sortedArgTypes[k];
+        sortedArgTypes[k] = argTypes[k];
+      }
+    })
+  });
+  return sortedArgTypes;
 }
