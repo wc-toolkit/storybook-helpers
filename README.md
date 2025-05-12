@@ -38,7 +38,7 @@ npm create storybook@latest
 
 ```js
 // .storybook/preview.js
-import { setCustomElementsManifest } from "@storybook/web-components";
+import { setCustomElementsManifest } from "@storybook/web-components-vite";
 import manifest from "./path/to/custom-elements.json" with { type: "json" };
 
 setCustomElementsManifest(manifest);
@@ -82,7 +82,7 @@ the function will return the helper data you can assign to the Storybook `meta` 
 
 ```ts
 // my-element.stories.ts
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers";
 
 const { events, args, argTypes, template } = getStorybookHelpers<MyElement>("my-element");

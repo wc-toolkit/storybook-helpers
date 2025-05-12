@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { spread } from "./spread";
-import { useArgs } from "@storybook/preview-api";
+import { useArgs } from "storybook/preview-api";
 import { html, unsafeStatic } from "lit/static-html.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
