@@ -97,8 +97,5 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  },
-  "overrides": {
-    "storybook": "$storybook"
   }
 }
