@@ -68,7 +68,7 @@ Next, if you have [global configurations](#global-configurations), set those in 
 
 ```ts
 // preview.js
-import { setStorybookHelpersConfig, type Options } from "@wc-toolbox/storybook-helpers";
+import { setStorybookHelpersConfig, type Options } from "@wc-toolkit/storybook-helpers";
 
 const options: Options = {...}
 
