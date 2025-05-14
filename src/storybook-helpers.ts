@@ -158,8 +158,8 @@ function getArgTypes(
  * @param argTypes argTypes object for component
  * @returns an object containing the `args` for the component
  */
-function getArgs<T>(argTypes: ArgTypes): Partial<T> {
-  const args: Partial<T> = {};
+function getArgs<T>(argTypes: ArgTypes): Partial<T> & { [key: string]: any } {
+  const args: Partial<T> & { [key: string]: any } = {};
   for (const [key, value] of Object.entries(argTypes)) {
     if (value?.control) {
       args[key as keyof T] = getDefaultValue(value.defaultValue) || "";
