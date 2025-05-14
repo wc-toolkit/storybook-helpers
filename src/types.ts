@@ -32,11 +32,11 @@ export type StoryOptions = {
 };
 
 export type StoryHelpers<T> = {
-  args: Partial<T>;
+  args: Partial<T> & { [key: string]: any };
   argTypes: ArgTypes;
   reactArgs: Record<string, unknown>;
   reactArgTypes: ArgTypes;
   events: string[];
   styleTemplate: (args?: Record<string, unknown>) => TemplateResult | "";
-  template: (args?: Partial<T>, slot?: TemplateResult) => TemplateResult;
+  template: (args?: Partial<T> & { [key: string]: any }, slot?: TemplateResult) => TemplateResult;
 };
