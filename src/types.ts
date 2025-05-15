@@ -1,5 +1,7 @@
 import { TemplateResult } from "lit";
-import { ArgTypes } from "./storybook-types";
+import type {
+  ArgTypes
+} from '@storybook/web-components';
 
 export type Categories =
   | "attributes"
@@ -40,5 +42,3 @@ export type StoryHelpers<T> = {
   styleTemplate: (args?: Record<string, unknown>) => TemplateResult | "";
   template: (args?: Partial<T> & { [key: string]: any }, slot?: TemplateResult) => TemplateResult;
 };
-
-export type { ArgTypes }

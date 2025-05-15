@@ -1,21 +1,3 @@
-// These are types that are from Storybook, but not exported
-
-export type ArgTypes = {
-  [key: string]: ArgSettings;
-};
-
-export type ArgSettings = {
-  /** The name of the property. */
-  name: string;
-  type?: ArgSettingsType;
-  defaultValue?: string | boolean | number | object;
-  /** Sets a Markdown description for the property. */
-  description?: string;
-  table?: Table;
-  control?: Control | ControlOptions | boolean;
-  options?: string[];
-};
-
 export type ArgSettingsType = {
   /** Sets a type for the property. */
   name?: string;
