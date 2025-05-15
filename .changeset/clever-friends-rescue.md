@@ -2,4 +2,4 @@
 "@wc-toolkit/storybook-helpers": patch
 ---
 
-Adds export for ArgTypes
+Adjusts ArgTypes export to source from Storybook
