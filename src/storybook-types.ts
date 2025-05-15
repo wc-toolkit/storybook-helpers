@@ -37,27 +37,3 @@ export type TableDefaultValue = {
   /** Provides a longer version of the default value. */
   detail?: string;
 };
-
-export type Control = {
-  type: ControlOptions;
-  min?: number;
-  max?: number;
-  step?: number;
-  accept?: string;
-};
-
-export type ControlOptions =
-  | "text"
-  | "radio"
-  | "select"
-  | "boolean"
-  | "number"
-  | "color"
-  | "date"
-  | "object"
-  | "file"
-  | "inline-radio"
-  | "check"
-  | "inline-check"
-  | "multi-select"
-  | null;
