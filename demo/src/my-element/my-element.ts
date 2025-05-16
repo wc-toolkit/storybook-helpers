@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 
 /**
  * An sample element.
- * 
+ *
  * @tag my-element
  *
  * @slot - This adds content between the logo and the counter button
@@ -19,7 +19,7 @@ import { customElement, property } from "lit/decorators.js";
  *
  * @event {MyType} count - This is a custom event
  * @event {MyType} fakeEvent - This is a custom event
- * 
+ *
  */
 @customElement("my-element")
 export class MyElement extends LitElement {
@@ -33,11 +33,11 @@ export class MyElement extends LitElement {
 
   /** Adds a label to the component */
   @property()
-  label? = 'count is:';
+  label? = "count is:";
 
   /** Adds a label to the component */
   @property()
-  union?: 'value1' | 'value2' | 'value3' | 'value4' = 'value1';
+  union?: "value1" | "value2" | "value3" | "value4" = "value1";
 
   /** Adds a label to the component */
   @property({ type: Boolean, reflect: true })
@@ -46,12 +46,12 @@ export class MyElement extends LitElement {
   /** Test object property */
   @property({ attribute: false, type: Object })
   jsonHint: object = {
-    docsHint: 'Click on the Storybook logo to learn more',
+    docsHint: "Click on the Storybook logo to learn more",
   };
 
   /** Test object property */
   @property({ attribute: false, type: Array })
-  hobbies: Array<string> = ['baseball', 'soccer', 'tennis'];
+  hobbies: Array<string> = ["baseball", "soccer", "tennis"];
 
   /**
    * Readonly - returns the time remaining
@@ -90,7 +90,11 @@ export class MyElement extends LitElement {
         </div>
         <slot></slot>
         <div>
-          <button ?disabled=${this.disabled} @click=${this._onClick} part="button">
+          <button
+            ?disabled=${this.disabled}
+            @click=${this._onClick}
+            part="button"
+          >
             ${this.label} ${this.count}
             <slot name="button-content"></slot>
           </button>

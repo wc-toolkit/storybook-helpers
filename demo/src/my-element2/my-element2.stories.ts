@@ -4,8 +4,7 @@ import "./my-element2.js";
 import type { StoryObj } from "@storybook/web-components";
 import type { MyElement2 } from "./my-element2.js";
 
-const { args, events, argTypes, template } =
-  getStorybookHelpers("my-element2");
+const { args, events, argTypes, template } = getStorybookHelpers("my-element2");
 
 const meta = {
   title: "My Element2",
