@@ -12,6 +12,16 @@ setStorybookHelpersConfig({
   setComponentVariable: false,
   /** renders default values for attributes and CSS properties */
   renderDefaultValues: false,
+  categoryOrder: [
+    "attributes",
+    "slots",
+    "cssParts",
+    "cssProps",
+    "cssStates",
+    "properties",
+    "events",
+    "methods"
+  ]
 });
 
 setCustomElementsManifest(customElements);
