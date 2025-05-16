@@ -22,7 +22,7 @@ setTimeout(() => {
 
 export function getAttributesAndProperties(
   component?: Component,
-  enabled = true
+  enabled = true,
 ): {
   resets?: ArgTypes;
   propArgs: ArgTypes;
@@ -38,7 +38,7 @@ export function getAttributesAndProperties(
     }
 
     const attribute = component.attributes?.find(
-      (x) => member.name === x.fieldName
+      (x) => member.name === x.fieldName,
     );
     const propName = member.name;
     const args = attribute ? attrArgs : propArgs;
@@ -63,7 +63,9 @@ export function getAttributesAndProperties(
       ? (member as any)[`${options.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
-    const defaultValue = member.readonly ? undefined : removeQuotes(member.default || "");
+    const defaultValue = member.readonly
+      ? undefined
+      : removeQuotes(member.default || "");
     const control = getControl(propType, attribute !== undefined);
 
     args[name] = {
@@ -71,20 +73,21 @@ export function getAttributesAndProperties(
       description: getDescription(
         member.description,
         propName,
-        member.deprecated as string
+        member.deprecated as string,
       ),
       defaultValue: defaultValue
-          ? defaultValue === "''"
-            ? ""
-            : control === "object"
-              ? JSON.parse(formatToValidJson(defaultValue))
-              : defaultValue
-          : undefined,
-      control: enabled && !member.readonly
-        ? {
-            type: control,
-          }
-        : false,
+        ? defaultValue === "''"
+          ? ""
+          : control === "object"
+            ? JSON.parse(formatToValidJson(defaultValue))
+            : defaultValue
+        : undefined,
+      control:
+        enabled && !member.readonly
+          ? {
+              type: control,
+            }
+          : false,
       table: {
         category: attribute ? "attributes" : "properties",
         defaultValue: {
@@ -107,7 +110,7 @@ export function getAttributesAndProperties(
 
 export function getReactProperties(
   component?: Component,
-  enabled = true
+  enabled = true,
 ): ArgSet {
   const resets: ArgTypes = {};
   const args: ArgTypes = {};
@@ -143,11 +146,12 @@ export function getReactProperties(
       name: member.name,
       description: member.description,
       defaultValue: getDefaultValue(controlType, member.default),
-      control: enabled && !member.readonly
-        ? {
-            type: controlType,
-          }
-        : false,
+      control:
+        enabled && !member.readonly
+          ? {
+              type: controlType,
+            }
+          : false,
       table: {
         category: "properties",
         defaultValue: {
@@ -191,7 +195,7 @@ export function getReactEvents(component?: Component): ArgSet {
 
 export function getCssProperties(
   component?: Component,
-  enabled = true
+  enabled = true,
 ): ArgSet {
   const resets: ArgTypes = {};
   const args: ArgTypes = {};
@@ -242,7 +246,7 @@ export function getCssParts(component?: Component, enabled = true): ArgSet {
       name: part.name,
       description: getDescription(
         part.description,
-        enabled ? `${part.name}-part` : ""
+        enabled ? `${part.name}-part` : "",
       ),
       control: enabled ? "text" : false,
       table: {
@@ -270,7 +274,7 @@ export function getCssStates(component?: Component, enabled = true): ArgSet {
       name: state.name,
       description: getDescription(
         state.description,
-        enabled ? `${state.name}-state` : ""
+        enabled ? `${state.name}-state` : "",
       ),
       control: enabled ? "text" : false,
       table: {
@@ -299,7 +303,7 @@ export function getSlots(component?: Component, enabled = true): ArgSet {
       name: slotName,
       description: getDescription(
         slot.description,
-        enabled ? `${slotName}-slot` : ""
+        enabled ? `${slotName}-slot` : "",
       ),
       control: enabled ? "text" : false,
       table: {
@@ -440,7 +444,7 @@ function cleanUpType(type?: string): string {
 function getDescription(
   description?: string,
   argRef?: string,
-  deprecated?: string
+  deprecated?: string,
 ) {
   let desc = getMemberDescription(description, deprecated);
 

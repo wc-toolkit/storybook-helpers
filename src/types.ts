@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TemplateResult } from "lit";
 import { ArgTypes } from "./storybook-types";
 
@@ -38,5 +39,8 @@ export type StoryHelpers<T> = {
   reactArgTypes: ArgTypes;
   events: string[];
   styleTemplate: (args?: Record<string, unknown>) => TemplateResult | "";
-  template: (args?: Partial<T> & { [key: string]: any }, slot?: TemplateResult) => TemplateResult;
+  template: (
+    args?: Partial<T> & { [key: string]: any },
+    slot?: TemplateResult,
+  ) => TemplateResult;
 };
