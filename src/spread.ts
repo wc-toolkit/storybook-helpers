@@ -270,7 +270,7 @@ function safeSetProperty(element: Element, name: string, value: unknown) {
   } catch (error) {
     console.warn(
       `Could not set property "${name}" on ${element.tagName} because it has no "setter".`,
-      error
+      error,
     );
   }
 }

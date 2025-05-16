@@ -85,7 +85,8 @@ the function will return the helper data you can assign to the Storybook `meta` 
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers";
 
-const { events, args, argTypes, template } = getStorybookHelpers<MyElement>("my-element");
+const { events, args, argTypes, template } =
+  getStorybookHelpers<MyElement>("my-element");
 
 const meta: Meta<MyElement> = {
   title: "Components/My Element",
