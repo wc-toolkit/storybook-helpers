@@ -6,7 +6,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
 import type { Categories, Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes } from "./storybook-types";
+import type { ArgTypes } from "@storybook/web-components";
 import {
   getAttributesAndProperties,
   getCssParts,
