@@ -5,7 +5,8 @@ import {
   getMemberDescription,
   removeQuotes,
 } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes, ControlOptions } from "./storybook-types";
+import type { ArgTypes } from "@storybook/web-components";
+import type { ControlOptions } from "./storybook-types";
 import type { Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
 
@@ -76,18 +77,15 @@ export function getAttributesAndProperties(
         member.deprecated as string,
       ),
       defaultValue: defaultValue
-        ? defaultValue === "''"
-          ? ""
-          : control === "object"
-            ? JSON.parse(formatToValidJson(defaultValue))
-            : defaultValue
-        : undefined,
-      control:
-        enabled && !member.readonly
-          ? {
-              type: control,
-            }
-          : false,
+          ? defaultValue === "''"
+            ? ""
+            : control === "object"
+              ? JSON.parse(formatToValidJson(defaultValue))
+              : defaultValue
+          : undefined,
+      control: enabled && !member.readonly && control
+        ? { type: control }
+        : false,
       table: {
         category: attribute ? "attributes" : "properties",
         defaultValue: {
@@ -146,12 +144,9 @@ export function getReactProperties(
       name: member.name,
       description: member.description,
       defaultValue: getDefaultValue(controlType, member.default),
-      control:
-        enabled && !member.readonly
-          ? {
-              type: controlType,
-            }
-          : false,
+    control: enabled && !member.readonly && controlType
+      ? { type: controlType }
+      : false,
       table: {
         category: "properties",
         defaultValue: {
