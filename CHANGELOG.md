@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.1.4
+
+### Patch Changes
+
+- 89a26ed: Adjusts ArgTypes export to source from Storybook
+
 ## 1.1.3
 
 ### Patch Changes
