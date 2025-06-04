@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.1.5
+
+### Patch Changes
+
+- 02c3c29: Fixed issue with `querySelector` when using `component` variable
+
 ## 1.1.4
 
 ### Patch Changes
