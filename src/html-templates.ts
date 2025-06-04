@@ -61,7 +61,7 @@ ${
     ? unsafeHTML(
         "<script>\n  window.component = document.querySelector('" +
           component!.tagName! +
-          "');\n<\/script>",
+          "');\n</script>",
       )
     : ""
 }
@@ -132,7 +132,9 @@ function getTemplateOperators(
     const attrName = attr.name;
     const attrValue = args![key] as unknown;
     const prop =
-      (attr.control as any).type === "boolean" ? `?${attrName}` : attrName as string;
+      (attr.control as any).type === "boolean"
+        ? `?${attrName}`
+        : (attrName as string);
     if (
       attrValue !== attrArgs[key].defaultValue ||
       options.renderDefaultValues
