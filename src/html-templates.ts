@@ -59,9 +59,9 @@ export function getTemplate(
 ${
   options.setComponentVariable || setComponentVariable
     ? unsafeHTML(
-        "<script>\n  window.component = document.querySelector(" +
+        "<script>\n  window.component = document.querySelector('" +
           component!.tagName! +
-          ");\n</script>",
+          "');\n<\/script>",
       )
     : ""
 }
