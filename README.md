@@ -68,7 +68,7 @@ Next, if you have [global configurations](#global-configurations), set those in 
 
 ```ts
 // preview.js
-import { setStorybookHelpersConfig, type Options } from "@wc-toolbox/storybook-helpers";
+import { setStorybookHelpersConfig, type Options } from "@wc-toolkit/storybook-helpers";
 
 const options: Options = {...}
 
@@ -85,7 +85,8 @@ the function will return the helper data you can assign to the Storybook `meta` 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers";
 
-const { events, args, argTypes, template } = getStorybookHelpers<MyElement>("my-element");
+const { events, args, argTypes, template } =
+  getStorybookHelpers<MyElement>("my-element");
 
 const meta: Meta<MyElement> = {
   title: "Components/My Element",

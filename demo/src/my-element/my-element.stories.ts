@@ -4,7 +4,7 @@ import "./my-element";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import type { MyElement } from "./my-element";
 
-const { args, events, argTypes, template } = getStorybookHelpers('my-element', {
+const { args, events, argTypes, template } = getStorybookHelpers("my-element", {
   excludeCategories: [
     // 'cssParts',
     // 'cssStates',
@@ -17,7 +17,7 @@ const { args, events, argTypes, template } = getStorybookHelpers('my-element', {
   setComponentVariable: true,
 });
 
-console.log('args', argTypes);
+console.log("args", argTypes);
 
 const meta: Meta<MyElement> = {
   title: "My Element",

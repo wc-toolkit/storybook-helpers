@@ -6,7 +6,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
 import type { Categories, Options } from "./types";
 import type { Component } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes } from "./storybook-types";
+import type { ArgTypes } from "@storybook/web-components";
 import {
   getAttributesAndProperties,
   getCssParts,
@@ -36,7 +36,7 @@ export function getTemplate(
   slot?: TemplateResult,
   argTypes?: ArgTypes,
   excludeCategories?: Categories[],
-  setComponentVariable?: boolean
+  setComponentVariable?: boolean,
 ): TemplateResult {
   if (!args) {
     return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
@@ -61,7 +61,7 @@ ${
     ? unsafeHTML(
         "<script>\n  window.component = document.querySelector(" +
           component!.tagName! +
-          ");\n</script>"
+          ");\n</script>",
       )
     : ""
 }
@@ -77,7 +77,7 @@ ${
 export function getStyleTemplate(
   component?: Component,
   args?: any,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
 ) {
   const cssPropertiesTemplate = excludeCategory("cssProps", excludeCategories)
     ? ""
@@ -94,7 +94,7 @@ export function getStyleTemplate(
 
   return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
     /\s+/g,
-    ""
+    "",
   ) !== ""
     ? (unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult)
     : "";
@@ -102,7 +102,7 @@ export function getStyleTemplate(
 
 function excludeCategory(
   category: Categories,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
 ) {
   return (
     !options.categoryOrder?.includes(category) ||
@@ -120,7 +120,7 @@ function excludeCategory(
 function getTemplateOperators(
   component: Component,
   args: any,
-  argTypes?: ArgTypes
+  argTypes?: ArgTypes,
 ) {
   const { propArgs, attrArgs } = getAttributesAndProperties(component);
   const attrOperators: any = {};
@@ -269,7 +269,7 @@ ${cssStateValue
 function getSlotsTemplate(
   component: Component,
   args: any,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
 ) {
   if (
     !component?.slots?.length ||

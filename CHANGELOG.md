@@ -1,5 +1,18 @@
 # @wc-toolkit/storybook-helpers
 
+## 1.1.4
+
+### Patch Changes
+
+- 89a26ed: Adjusts ArgTypes export to source from Storybook
+
+## 1.1.3
+
+### Patch Changes
+
+- e8c4db0: Resolves an issue where non properties were throwing type errors (slots, cssprops, etc)
+- f7ac995: Fixes an incorrect import path in the documentation
+
 ## 1.1.2
 
 ### Patch Changes

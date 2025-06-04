@@ -12,7 +12,7 @@ permissions:
   pull-requests: write
   packages: write
   id-token: write
-  
+
 jobs:
   publish:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -31,17 +31,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-    
+
       - name: Build
         run: pnpm lint && pnpm build
-    
+
       - name: Run tests
         run: pnpm test
-    
+
       - name: Create Release Pull Request and Publish
         id: changesets
         uses: changesets/action@v1
