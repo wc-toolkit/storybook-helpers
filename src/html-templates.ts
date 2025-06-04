@@ -131,8 +131,8 @@ function getTemplateOperators(
     const attr = attrArgs[key];
     const attrName = attr.name;
     const attrValue = args![key] as unknown;
-    const prop: string =
-      (attr.control as any).type === "boolean" ? `?${attrName}` : attrName;
+    const prop =
+      (attr.control as any).type === "boolean" ? `?${attrName}` : attrName as string;
     if (
       attrValue !== attrArgs[key].defaultValue ||
       options.renderDefaultValues
