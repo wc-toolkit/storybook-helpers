@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TemplateResult } from "lit";
-import type {
-  ArgTypes
-} from '@storybook/web-components';
+import type { ArgTypes } from "@storybook/web-components";
 
 export type Categories =
   | "attributes"
