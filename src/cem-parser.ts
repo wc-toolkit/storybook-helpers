@@ -77,15 +77,14 @@ export function getAttributesAndProperties(
         member.deprecated as string,
       ),
       defaultValue: defaultValue
-          ? defaultValue === "''"
-            ? ""
-            : control === "object"
-              ? JSON.parse(formatToValidJson(defaultValue))
-              : defaultValue
-          : undefined,
-      control: enabled && !member.readonly && control
-        ? { type: control }
-        : false,
+        ? defaultValue === "''"
+          ? ""
+          : control === "object"
+            ? JSON.parse(formatToValidJson(defaultValue))
+            : defaultValue
+        : undefined,
+      control:
+        enabled && !member.readonly && control ? { type: control } : false,
       table: {
         category: attribute ? "attributes" : "properties",
         defaultValue: {
@@ -144,9 +143,10 @@ export function getReactProperties(
       name: member.name,
       description: member.description,
       defaultValue: getDefaultValue(controlType, member.default),
-    control: enabled && !member.readonly && controlType
-      ? { type: controlType }
-      : false,
+      control:
+        enabled && !member.readonly && controlType
+          ? { type: controlType }
+          : false,
       table: {
         category: "properties",
         defaultValue: {
