@@ -23,6 +23,9 @@ importers:
       '@storybook/addon-docs':
         specifier: 9.0.4
         version: 9.0.4(@types/react@19.0.10)(storybook@9.0.0-beta.11(@testing-library/dom@10.4.0)(prettier@3.4.2))
+      '@storybook/web-components':
+        specifier: 9.0.4
+        version: 9.0.4(lit@3.2.1)(storybook@9.0.0-beta.11(@testing-library/dom@10.4.0)(prettier@3.4.2))
       '@storybook/web-components-vite':
         specifier: 9.0.4
         version: 9.0.4(lit@3.2.1)(storybook@9.0.0-beta.11(@testing-library/dom@10.4.0)(prettier@3.4.2))(vite@6.1.0(@types/node@22.13.2))

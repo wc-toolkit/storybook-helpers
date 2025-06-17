@@ -51,6 +51,7 @@
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@eslint/js": "^9.19.0",
     "@storybook/addon-docs": "9.0.4",
+    "@storybook/web-components": "9.0.4",
     "@storybook/web-components-vite": "9.0.4",
     "@types/node": "^22.13.2",
     "@wc-toolkit/cem-utilities": "^1.0.2",
