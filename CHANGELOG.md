@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 9.0.0
+
+### Major Changes
+
+- 70578b4: Upgrade package to support Storybook v9
+
 ## 1.1.5
 
 ### Patch Changes

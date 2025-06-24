@@ -1,6 +1,6 @@
 {
   "name": "@wc-toolkit/storybook-helpers",
-  "version": "1.1.5",
+  "version": "9.0.0",
   "description": "Helpers designed to make integrating Web Components with Storybook easier.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
