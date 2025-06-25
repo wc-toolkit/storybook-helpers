@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 9.0.1
+
+### Patch Changes
+
+- c733b62: Resolved a slot template issue preventing non-text slots from rendering
+
 ## 9.0.0
 
 ### Major Changes
