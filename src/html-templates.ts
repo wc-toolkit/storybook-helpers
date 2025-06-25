@@ -297,15 +297,13 @@ function getSlotsTemplate(
       container.innerHTML = slotValue;
 
       for (const child of container.childNodes) {
-        if (child.textContent?.trim() === "" || child.textContent === "\n") {
-          slotContent += child.textContent;
-        }
-
         if (child instanceof Text) {
           slotContent += `  <span slot=${slotName}>${child.textContent}</span>`;
         } else if (child instanceof Element) {
           child.setAttribute("slot", slotName!);
           slotContent += `  ${child.outerHTML}`;
+        } else if (child.textContent?.trim() === "" || child.textContent === "\n") {
+          slotContent += child.textContent;
         }
       }
 
