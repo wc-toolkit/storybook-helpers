@@ -299,7 +299,6 @@ function getSlotsTemplate(
       for (const child of container.childNodes) {
         if (child.textContent?.trim() === "" || child.textContent === "\n") {
           slotContent += child.textContent;
-          continue;
         }
 
         if (child instanceof Text) {
