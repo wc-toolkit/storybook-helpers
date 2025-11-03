@@ -34,17 +34,17 @@ Be sure to check out the [official docs](https://wc-toolkit.com/integrations/sto
 npm create storybook@latest
 ```
 
-2. Load your custom elements manifest into Storybook in the `.storybook/preview.js` file:
+2. Load your custom elements manifest into Storybook in the `.storybook/preview.ts` (or `.js`) file:
 
 ```js
-// .storybook/preview.js
+// .storybook/preview.ts
 import { setCustomElementsManifest } from "@storybook/web-components-vite";
 import manifest from "./path/to/custom-elements.json" with { type: "json" };
 
 setCustomElementsManifest(manifest);
 ```
 
-3. Add the expanded controls to your config in the `.storybook/preview.js` file:
+3. Add the expanded controls to your config in the `.storybook/preview.ts` (or `.js`) file:
 
 ```js
 export const parameters = {
@@ -64,10 +64,10 @@ Now that you have Storybook installed, you can install the helpers:
 npm i -D @wc-toolkit/storybook-helpers
 ```
 
-Next, if you have [global configurations](#global-configurations), set those in your Storybook config in the `.storybook/preview.js` file:
+Next, if you have [global configurations](#global-configurations), set those in your Storybook config in the `.storybook/preview.ts` (or `.js`) file:
 
 ```ts
-// preview.js
+// preview.ts
 import { setStorybookHelpersConfig, type Options } from "@wc-toolkit/storybook-helpers";
 
 const options: Options = {...}

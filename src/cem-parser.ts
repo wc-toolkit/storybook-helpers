@@ -6,8 +6,8 @@ import {
   removeQuotes,
 } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
-import type { ControlOptions } from "./storybook-types";
-import type { Options } from "./types";
+import type { ControlOptions } from "./storybook-types.js";
+import type { Options } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
 
 type ArgSet = {
