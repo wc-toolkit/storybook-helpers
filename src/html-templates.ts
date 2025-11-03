@@ -302,7 +302,10 @@ function getSlotsTemplate(
         } else if (child instanceof Element) {
           child.setAttribute("slot", slotName!);
           slotContent += `  ${child.outerHTML}`;
-        } else if (child.textContent?.trim() === "" || child.textContent === "\n") {
+        } else if (
+          child.textContent?.trim() === "" ||
+          child.textContent === "\n"
+        ) {
           slotContent += child.textContent;
         }
       }

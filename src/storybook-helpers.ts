@@ -14,7 +14,12 @@ import {
 } from "./cem-parser.js";
 import { Component, getComponentByTagName } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
-import type { Categories, Options, StoryHelpers, StoryOptions } from "./types.js";
+import type {
+  Categories,
+  Options,
+  StoryHelpers,
+  StoryOptions,
+} from "./types.js";
 import type { Package } from "custom-elements-manifest";
 
 let userOptions: Options =

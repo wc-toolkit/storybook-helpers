@@ -62,7 +62,11 @@ export class MyElement2 extends LitElement {
             href="https://storybook.js.org/docs/get-started/web-components-vite"
             target="_blank"
           >
-            <img src="https://wc-toolkit.com/_astro/wc-toolkit-icon.M2DETGo4_Z26pE6D.webp" class="logo" alt="Storybook logo" />
+            <img
+              src="https://wc-toolkit.com/_astro/wc-toolkit-icon.M2DETGo4_Z26pE6D.webp"
+              class="logo"
+              alt="Storybook logo"
+            />
           </a>
         </div>
         <slot></slot>
