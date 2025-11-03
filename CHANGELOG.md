@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 11.0.0
+
+### Major Changes
+
+- 71fdac7: Updated exports to be ESM only in order to make storybook-helpers compatible with Storybook v10
+
 ## 9.0.1
 
 ### Patch Changes
