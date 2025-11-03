@@ -27,8 +27,8 @@
     "test": "npm run analyze && vitest --run --passWithNoTests",
     "prepare": "husky",
     "release": "pnpm run build && changeset publish --access=public",
-  "storybook": "storybook dev -c demo/.storybook -p 6006",
-    "build-storybook": "storybook build -c demo/.storybook --no-open"
+    "storybook": "storybook dev -c demo/.storybook -p 6006 --no-open",
+    "build-storybook": "storybook build -c demo/.storybook"
   },
   "author": "",
   "license": "MIT",
