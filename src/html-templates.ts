@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { spread } from "./spread";
+import { spread } from "./spread.js";
 import { useArgs } from "storybook/preview-api";
 import { html, unsafeStatic } from "lit/static-html.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
-import type { Categories, Options } from "./types";
+import type { Categories, Options } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
 import {
@@ -13,7 +13,7 @@ import {
   getCssProperties,
   getCssStates,
   getSlots,
-} from "./cem-parser";
+} from "./cem-parser.js";
 
 let argObserver: MutationObserver | undefined;
 let lastTagName: string | undefined;
@@ -302,7 +302,10 @@ function getSlotsTemplate(
         } else if (child instanceof Element) {
           child.setAttribute("slot", slotName!);
           slotContent += `  ${child.outerHTML}`;
-        } else if (child.textContent?.trim() === "" || child.textContent === "\n") {
+        } else if (
+          child.textContent?.trim() === "" ||
+          child.textContent === "\n"
+        ) {
           slotContent += child.textContent;
         }
       }

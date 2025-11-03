@@ -1,8 +1,8 @@
 import { getStorybookHelpers } from "../../../src/index.js";
 import { html } from "lit";
-import "./my-element";
+import "./my-element.js";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
-import type { MyElement } from "./my-element";
+import type { MyElement } from "./my-element.js";
 
 const { args, events, argTypes, template } = getStorybookHelpers("my-element", {
   excludeCategories: [

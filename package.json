@@ -1,28 +1,22 @@
 {
   "name": "@wc-toolkit/storybook-helpers",
-  "version": "9.0.1",
+  "version": "10.0.0",
   "description": "Helpers designed to make integrating Web Components with Storybook easier.",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+    ".": "./dist/index.js"
   },
   "files": [
     "index.js",
     "index.d.ts",
-    "/dist"
+    "dist"
   ],
   "scripts": {
     "analyze": "npm run build && cem analyze",
     "analyze:dev": "cem analyze --watch",
     "changeset": "changeset add",
-    "build": "tsup src/index.ts --dts --format cjs,esm",
+    "build": "tsup src/index.ts --dts --format esm",
     "clean": "git clean -fdX",
     "deploy": "npm run build && npm publish",
     "dev": "concurrently -k -r \"npm run analyze:dev\" \"npm run storybook\"",
@@ -32,7 +26,7 @@
     "test": "npm run analyze && vitest --run --passWithNoTests",
     "prepare": "husky",
     "release": "pnpm run build && changeset publish --access=public",
-    "storybook": "storybook dev -c demo/.storybook -p 6006",
+    "storybook": "storybook dev -c demo/.storybook -p 6006 --no-open",
     "build-storybook": "storybook build -c demo/.storybook"
   },
   "author": "",
@@ -49,10 +43,10 @@
     "@changesets/cli": "^2.29.4",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@eslint/js": "^9.19.0",
-    "@storybook/addon-docs": "^9.0.12",
-    "@storybook/web-components": "^9.0.12",
-    "@storybook/web-components-vite": "^9.0.12",
-    "@types/node": "^22.13.2",
+    "@storybook/addon-docs": "^10.0.0",
+    "@storybook/web-components": "^10.0.0",
+    "@storybook/web-components-vite": "^10.0.0",
+    "@types/node": "^24.10.0",
     "@wc-toolkit/cem-utilities": "^1.0.2",
     "@wc-toolkit/type-parser": "^1.0.1",
     "comment-parser": "^1.4.1",
@@ -64,7 +58,7 @@
     "husky": "^9.1.7",
     "lit": "^3.2.1",
     "prettier": "3.4.2",
-    "storybook": "^9.0.12",
+    "storybook": "^10.0.0",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.21.0",
@@ -91,7 +85,7 @@
   },
   "peerDependencies": {
     "lit": "^2.0.0 || ^3.0.0",
-    "storybook": ">=9.0.0-0 <10.0.0-0"
+    "storybook": ">=10.0.0-0 <11.0.0-0"
   },
   "eslintConfig": {
     "extends": [
