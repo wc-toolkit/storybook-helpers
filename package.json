@@ -2,27 +2,22 @@
   "name": "@wc-toolkit/storybook-helpers",
   "version": "10.0.0",
   "description": "Helpers designed to make integrating Web Components with Storybook easier.",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
+  
   "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    ".": "./dist/index.js"
   },
   "files": [
     "index.js",
     "index.d.ts",
-    "/dist"
+    "dist"
   ],
   "scripts": {
     "analyze": "npm run build && cem analyze",
     "analyze:dev": "cem analyze --watch",
     "changeset": "changeset add",
-    "build": "tsup src/index.ts --dts --format cjs,esm",
+    "build": "tsup src/index.ts --dts --format esm",
     "clean": "git clean -fdX",
     "deploy": "npm run build && npm publish",
     "dev": "concurrently -k -r \"npm run analyze:dev\" \"npm run storybook\"",
@@ -33,7 +28,7 @@
     "prepare": "husky",
     "release": "pnpm run build && changeset publish --access=public",
   "storybook": "storybook dev -c demo/.storybook -p 6006",
-    "build-storybook": "storybook build -c demo/.storybook"
+    "build-storybook": "storybook build -c demo/.storybook --no-open"
   },
   "author": "",
   "license": "MIT",
