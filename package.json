@@ -46,7 +46,7 @@
     "@storybook/addon-docs": "^10.0.0",
     "@storybook/web-components": "^10.0.0",
     "@storybook/web-components-vite": "^10.0.0",
-    "@types/node": "^22.13.2",
+    "@types/node": "^24.10.0",
     "@wc-toolkit/cem-utilities": "^1.0.2",
     "@wc-toolkit/type-parser": "^1.0.1",
     "comment-parser": "^1.4.1",
