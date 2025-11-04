@@ -30,6 +30,8 @@ export type StoryOptions = {
   excludeCategories?: Array<Categories>;
   /** Adds a <script> tag where a `component` variable will reference the story's component */
   setComponentVariable?: boolean;
+  /** The container element where render the component into */
+  containerSelector?: string;
 };
 
 export type StoryHelpers<T> = {

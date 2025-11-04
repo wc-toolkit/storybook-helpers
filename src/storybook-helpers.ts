@@ -79,6 +79,7 @@ export function getStorybookHelpers<T>(
         argTypes,
         options?.excludeCategories || [],
         options?.setComponentVariable,
+        options?.containerSelector,
       ),
   };
 

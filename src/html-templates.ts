@@ -37,6 +37,7 @@ export function getTemplate(
   argTypes?: ArgTypes,
   excludeCategories?: Categories[],
   setComponentVariable?: boolean,
+  containerSelector?: string,
 ): TemplateResult {
   if (!args) {
     return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
@@ -52,19 +53,26 @@ export function getTemplate(
     getTemplateOperators(component!, args, argTypes);
   const operators = { ...attrOperators, ...propOperators, ...additionalAttrs };
   const slotsTemplate = getSlotsTemplate(component!, args, excludeCategories);
-  syncControls(component!);
+  syncControls(component!, containerSelector);
 
   return html`${getStyleTemplate(component, args, excludeCategories)}
 <${unsafeStatic(component!.tagName!)} ${spread(operators)}>${slotsTemplate}${slot || ""}</${unsafeStatic(component!.tagName!)}>
-${
-  options.setComponentVariable || setComponentVariable
-    ? unsafeHTML(
-        "<script>\n  window.component = document.querySelector('" +
-          component!.tagName! +
-          "');\n</script>",
-      )
-    : ""
-}
+${options.setComponentVariable || setComponentVariable
+      ? unsafeHTML(`
+      <script>
+        let containerElement = ${containerSelector ? `document.querySelector('${containerSelector}')` : 'document'}
+        containerElement ??= document;
+        if (containerElement instanceof HTMLTemplateElement) {
+          containerElement = containerElement.content;
+        }
+        if (containerElement.shadowRoot) {
+          containerElement = containerElement.shadowRoot;
+        } 
+        window.component = containerElement.querySelector('" +component!.tagName! +"');
+      </script>
+    `.trim())
+      : ""
+    }
 `;
 }
 
@@ -221,9 +229,9 @@ function getCssPartsTemplate(component: Component, args: any) {
       return cssPartValue.replace(/\s+/g, "") !== ""
         ? `  ${component?.tagName}::part(${cssPartName}) {
 ${cssPartValue
-  .split(`\n`)
-  .map((part) => `    ${part}`)
-  .join("\n")}
+          .split(`\n`)
+          .map((part) => `    ${part}`)
+          .join("\n")}
   }`
         : null;
     })
@@ -252,9 +260,9 @@ function getCssStatesTemplate(component: Component, args: any) {
       return cssStateValue.replace(/\s+/g, "") !== ""
         ? `  ${component?.tagName}:state(${cssStateName}) {
 ${cssStateValue
-  .split(`\n`)
-  .map((state) => `    ${state}`)
-  .join("\n")}
+          .split(`\n`)
+          .map((state) => `    ${state}`)
+          .join("\n")}
   }`
         : null;
     })
@@ -318,16 +326,33 @@ function getSlotsTemplate(
   return slotTemplates.trim() ? unsafeStatic(`\n${slotTemplates}\n`) : "";
 }
 
+function getContainerElement(containerSelector?: string): DocumentFragment | ShadowRoot | Document {
+  let containerElement: DocumentFragment | ShadowRoot | Document = containerSelector
+    ? document.querySelector(containerSelector)!
+    : document;
+
+  if (containerElement instanceof HTMLTemplateElement) {
+    return containerElement.content;
+  }
+
+  if ("shadowRoot" in containerElement) {
+    return containerElement.shadowRoot!;
+  }
+
+  return containerElement
+}
+
 /**
  * Watches for changes to the component's attributes and properties and updates Storybook controls
  * @param component component object from the Custom Elements Manifest
  */
-function syncControls(component: Component) {
+function syncControls(component: Component, containerSelector?: string) {
   setArgObserver(component);
 
   // wait for story to render before trying to attach the observer
   setTimeout(() => {
-    const selectedComponent = document.querySelector(component.tagName!)!;
+    const containerElement = getContainerElement(containerSelector);
+    const selectedComponent = containerElement.querySelector(component.tagName!)!;
     argObserver?.observe(selectedComponent, {
       attributes: true,
     });
