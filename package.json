@@ -1,6 +1,6 @@
 {
   "name": "@wc-toolkit/storybook-helpers",
-  "version": "10.0.0",
+  "version": "10.1.11",
   "description": "Helpers designed to make integrating Web Components with Storybook easier.",
   "types": "./dist/index.d.ts",
   "type": "module",
@@ -43,9 +43,9 @@
     "@changesets/cli": "^2.29.4",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@eslint/js": "^9.19.0",
-    "@storybook/addon-docs": "^10.0.0",
-    "@storybook/web-components": "^10.0.0",
-    "@storybook/web-components-vite": "^10.0.0",
+    "@storybook/addon-docs": "^10.1.11",
+    "@storybook/web-components": "^10.1.11",
+    "@storybook/web-components-vite": "^10.1.11",
     "@types/node": "^24.10.0",
     "@wc-toolkit/cem-utilities": "^1.0.2",
     "@wc-toolkit/type-parser": "^1.0.1",
@@ -58,7 +58,7 @@
     "husky": "^9.1.7",
     "lit": "^3.2.1",
     "prettier": "3.4.2",
-    "storybook": "^10.0.0",
+    "storybook": "^10.1.11",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.21.0",
@@ -85,7 +85,7 @@
   },
   "peerDependencies": {
     "lit": "^2.0.0 || ^3.0.0",
-    "storybook": ">=10.0.0-0 <11.0.0-0"
+    "storybook": ">=10.1.11-0 <11.0.0-0"
   },
   "eslintConfig": {
     "extends": [

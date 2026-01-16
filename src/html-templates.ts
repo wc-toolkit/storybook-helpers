@@ -4,7 +4,7 @@ import { useArgs } from "storybook/preview-api";
 import { html, unsafeStatic } from "lit/static-html.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
-import type { Categories, Options } from "./types.js";
+import type { Categories, StorybookHelpersOptions } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
 import {
@@ -14,10 +14,11 @@ import {
   getCssStates,
   getSlots,
 } from "./cem-parser.js";
+import { action } from "storybook/actions";
 
 let argObserver: MutationObserver | undefined;
 let lastTagName: string | undefined;
-let options: Options = {};
+let options: StorybookHelpersOptions = {};
 
 setTimeout(() => {
   options = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
@@ -100,6 +101,21 @@ export function getStyleTemplate(
     : "";
 }
 
+export function logEvent(name: string, event: Event) {
+  const eventData: Record<string, unknown> = {};
+  
+  for (const key in event) {
+    try {
+      const value = event[key as keyof Event];
+      eventData[key] = value;
+    } catch {
+      // Skip properties that throw errors when accessed
+    }
+  }
+  
+  action(name)(eventData);
+};
+
 function excludeCategory(
   category: Categories,
   excludeCategories?: Categories[],
@@ -164,6 +180,13 @@ function getTemplateOperators(
         additionalAttrs[key] = args[key];
       }
     });
+
+  component.events?.forEach((event) => {
+    if(!event.name) {
+      return;
+    }
+    additionalAttrs[`@${event.name}`] = (e: Event) => logEvent(event.name, e);
+  });
 
   return { attrOperators, propOperators, additionalAttrs };
 }
