@@ -7,7 +7,7 @@ import {
 } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
 import type { ControlOptions } from "./storybook-types.js";
-import type { Options } from "./types.js";
+import type { StorybookHelpersOptions } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
 
 type ArgSet = {
@@ -15,7 +15,7 @@ type ArgSet = {
   args: ArgTypes;
 };
 
-let options: Options = {};
+let options: StorybookHelpersOptions = {};
 
 setTimeout(() => {
   options = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};

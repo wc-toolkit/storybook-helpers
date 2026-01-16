@@ -1,10 +1,9 @@
 import { getStorybookHelpers } from "../../../src/index.js";
-import { html } from "lit";
 import "./my-element.js";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import type { MyElement } from "./my-element.js";
 
-const { args, events, argTypes, template } = getStorybookHelpers("my-element", {
+const { args, argTypes, template } = getStorybookHelpers("my-element", {
   excludeCategories: [
     // 'cssParts',
     // 'cssStates',
@@ -24,15 +23,10 @@ const meta: Meta<MyElement> = {
   component: "my-element",
   args,
   argTypes,
-  parameters: {
-    actions: {
-      handles: events,
-    },
-  },
+  render: (args) => template(args),
 };
 export default meta;
 
 export const Default: StoryObj<MyElement & typeof args> = {
-  render: (args) => html` ${template(args)} `,
   args: {},
 };
