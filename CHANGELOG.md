@@ -1,5 +1,16 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.2.0
+
+### Minor Changes
+
+- c619a28: Updated `template` to capture events in "Actions" panel
+
+### Patch Changes
+
+- c619a28: Added `logEvent` helper to manually log events to the "Actions" panel
+- c619a28: Deprecated the `events` property as the actions handler is no longer supported
+
 ## 10.0.0
 
 ### Major Changes
