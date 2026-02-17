@@ -350,10 +350,12 @@ function syncControls(component: Component) {
 
   // wait for story to render before trying to attach the observer
   setTimeout(() => {
-    const selectedComponent = document.querySelector(component.tagName!)!;
-    argObserver?.observe(selectedComponent, {
-      attributes: true,
-    });
+    const selectedComponent = document.querySelector(component.tagName!);
+    if (selectedComponent && argsObserver) {
+      argObserver.observe(selectedComponent, {
+        attributes: true,
+      });
+    }
   });
 }
 
