@@ -29,9 +29,9 @@
     // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
 
     /* Modules */
-    "module": "ESNext" /* Specify what module code is generated. */,
+    "module": "NodeNext" /* Specify what module code is generated. Use NodeNext for proper ESM resolution with node-style packages. */,
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
+    "moduleResolution": "nodenext" /* Specify how TypeScript looks up a file from a given module specifier. Use nodenext for proper ESM type resolution. */,
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
       "custom-elements-manifest": [
