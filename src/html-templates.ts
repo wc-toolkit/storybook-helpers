@@ -185,7 +185,9 @@ function getTemplateOperators(
     if(!event.name) {
       return;
     }
-    additionalAttrs[`@${event.name}`] = (e: Event) => logEvent(event.name, e);
+    if (!additionalAttrs[`@${event.name}`]) {
+      additionalAttrs[`@${event.name}`] = (e: Event) => logEvent(event.name, e);
+    }
   });
 
   return { attrOperators, propOperators, additionalAttrs };
