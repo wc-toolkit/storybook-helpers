@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.2.1
+
+### Patch Changes
+
+- 98603e1: Added stability to the `args` observer
+
 ## 10.2.0
 
 ### Minor Changes
