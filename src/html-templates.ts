@@ -352,7 +352,7 @@ function syncControls(component: Component) {
   setTimeout(() => {
     const selectedComponent = document.querySelector(component.tagName!);
     if (selectedComponent && argsObserver) {
-      argObserver.observe(selectedComponent, {
+      argsObserver.observe(selectedComponent, {
         attributes: true,
       });
     }
