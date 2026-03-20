@@ -94,6 +94,7 @@ export function getAttributesAndProperties(
           summary: type,
         },
       },
+      type: getSBType(control),
     };
 
     const values = control === "select" && propType?.split("|");
@@ -156,6 +157,7 @@ export function getReactProperties(
           summary: type,
         },
       },
+      type: getSBType(controlType),
     };
 
     const values = controlType === "select" && propType?.split("|");
@@ -369,6 +371,25 @@ function getDefaultValue(controlType: ControlOptions, defaultValue?: string) {
     : initialValue === "''"
       ? ""
       : initialValue;
+}
+
+function getSBType(controlType: ControlOptions): ArgTypes[string]["type"] {
+  switch (controlType) {
+    case "boolean":
+      return "boolean";
+    case "number":
+      return "number";
+    case "color":
+    case "text":
+    case "date":
+      return "string";
+    case "select":
+      return { name: "enum", value: [] };
+    case "object":
+      return { name: "object", value: {} };
+    default:
+      return undefined;
+  }
 }
 
 function getControl(type: string, isAttribute = false): ControlOptions {
