@@ -96,7 +96,7 @@ export function getAttributesAndProperties(
       },
     };
 
-    const values = propType?.split("|");
+    const values = control === "select" && propType?.split("|");
     if (values && values?.length > 1) {
       args[name].options = values.map((x) => removeQuotes(x)!);
     }
@@ -158,7 +158,7 @@ export function getReactProperties(
       },
     };
 
-    const values = propType?.split("|");
+    const values = controlType === "select" && propType?.split("|");
     if (values && values?.length > 1) {
       args[propName].options = values.map((x) => removeQuotes(x)!);
     }
