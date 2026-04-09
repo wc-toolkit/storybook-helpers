@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.2.3
+
+### Patch Changes
+
+- 6fccd93: Do not overwrite event handlers from args with logEvent-handler
+
 ## 10.2.2
 
 ### Patch Changes
