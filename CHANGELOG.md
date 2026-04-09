@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.2.2
+
+### Patch Changes
+
+- d10f4d9: Fix typo in `argsObserver` variable name in `syncControls` function.
+
 ## 10.2.1
 
 ### Patch Changes
