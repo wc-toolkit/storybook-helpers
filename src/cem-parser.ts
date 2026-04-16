@@ -9,6 +9,7 @@ import type { ArgTypes } from "@storybook/web-components";
 import type { ControlOptions } from "./storybook-types.js";
 import type { StorybookHelpersOptions } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
+import { CssCustomProperty } from "custom-elements-manifest";
 
 type ArgSet = {
   resets?: ArgTypes;
@@ -211,9 +212,7 @@ export function getCssProperties(
       defaultValue: property.default,
       control: enabled
         ? {
-            type: property.name?.toLowerCase()?.includes("color")
-              ? "color"
-              : "text",
+            type: getCssPropControl(property),
           }
         : false,
       table: {
@@ -223,6 +222,26 @@ export function getCssProperties(
   });
 
   return { resets, args };
+}
+
+function getCssPropControl(
+  property: CssCustomProperty,
+): ControlOptions | undefined {
+  const type = (property as any).type?.text?.toLowerCase();
+  const name = property.name?.toLowerCase();
+  if (
+    name?.includes("color") ||
+    name?.includes("colour") ||
+    type === "<color>"
+  ) {
+    return "color";
+  }
+
+  if (type === "<integer>" || type === "<number>") {
+    return "number";
+  }
+
+  return "text";
 }
 
 export function getCssParts(component?: Component, enabled = true): ArgSet {

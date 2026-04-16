@@ -11,5 +11,4 @@ export type ControlOptions =
   | "inline-radio"
   | "check"
   | "inline-check"
-  | "multi-select"
-  | null;
+  | "multi-select";

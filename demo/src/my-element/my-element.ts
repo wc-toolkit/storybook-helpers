@@ -12,10 +12,11 @@ import { customElement, property } from "lit/decorators.js";
  * @csspart button - The button
  * @csspart docs-hint - Adds custom styles to the docs hint
  *
- * @cssprop [--card-border-color=#ccc] - The card border color
- * @cssprop [--card-border-size=1px] - The card border color
- * @cssprop [--card-border-style=solid] - The card border color
- * @cssprop [--card-border-radius=8px] - The card border radius
+ * @cssprop {<color>} [--card-border-color=#ccc] - The card border color
+ * @cssprop {<color>} [--card-background-colour=#ccc] - Used alternate spelling
+ * @cssprop {<length>} [--card-border-size=1px] - The card border size
+ * @cssprop {<string>} [--card-border-style=solid] - The card border style
+ * @cssprop {<length>} [--card-border-radius=8px] - The card border radius
  *
  * @event {MyType} count - This is a custom event
  * @event {MyType} fakeEvent - This is a custom event

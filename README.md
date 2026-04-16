@@ -10,7 +10,7 @@ These helpers are designed to make integrating Web Components with Storybook eas
 
 There are a number of things that this helper library does to provide developers a better experience with Storybook and Web Components:
 
-1. Uses types to provide better controls
+1. Uses types to provide better controls for properties and CSS custom properties
 2. Prevents name collisions when attributes, properties, slots, and CSS shadow parts share the same name
 3. Provides a template with bindings for attributes, properties, CSS custom properties, and CSS shadow parts.
 4. Provides two-way binding for controls and attributes in the template to help keep control values in sync with the component
@@ -169,11 +169,25 @@ export const WithSlotContent: Story = {
 
 CSS custom properties appear as controls and can be modified:
 
+If your Custom Elements Manifest includes typed `@cssprop` declarations, Storybook Helpers will choose a better control automatically:
+
+- `@cssprop {<color>}` or CSS property names that include `color` or `colour` use the `color` control
+- `@cssprop {<number>}` and `@cssprop {<integer>}` use the `number` control
+- All other CSS custom properties fall back to the `text` control
+
+```ts
+/**
+ * @cssprop {<color>} [--card-border-color=#ccc] - The card border color
+ * @cssprop {<number>} [--card-elevation=1] - Elevation depth
+ * @cssprop {<length>} [--card-border-radius=8px] - The card border radius
+ */
+```
+
 ```ts
 export const CustomStyling: Story = {
   args: {
     "--card-border-color": "#ff0000",
-    "--card-border-size": "2px",
+    "--card-border-elevation": "2",
     "--card-border-radius": "16px",
   },
 };
