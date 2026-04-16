@@ -95,9 +95,10 @@ export function getAttributesAndProperties(
           summary: type,
         },
       },
+      type: getSBType(control),
     };
 
-    const values = propType?.split("|");
+    const values = control === "select" && propType?.split("|");
     if (values && values?.length > 1) {
       args[name].options = values.map((x) => removeQuotes(x)!);
     }
@@ -157,9 +158,10 @@ export function getReactProperties(
           summary: type,
         },
       },
+      type: getSBType(controlType),
     };
 
-    const values = propType?.split("|");
+    const values = controlType === "select" && propType?.split("|");
     if (values && values?.length > 1) {
       args[propName].options = values.map((x) => removeQuotes(x)!);
     }
@@ -388,6 +390,25 @@ function getDefaultValue(controlType: ControlOptions, defaultValue?: string) {
     : initialValue === "''"
       ? ""
       : initialValue;
+}
+
+function getSBType(controlType: ControlOptions): ArgTypes[string]["type"] {
+  switch (controlType) {
+    case "boolean":
+      return "boolean";
+    case "number":
+      return "number";
+    case "color":
+    case "text":
+    case "date":
+      return "string";
+    case "select":
+      return { name: "enum", value: [] };
+    case "object":
+      return { name: "object", value: {} };
+    default:
+      return undefined;
+  }
 }
 
 function getControl(type: string, isAttribute = false): ControlOptions {
