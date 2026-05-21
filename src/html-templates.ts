@@ -103,7 +103,7 @@ export function getStyleTemplate(
 
 export function logEvent(name: string, event: Event) {
   const eventData: Record<string, unknown> = {};
-  
+
   for (const key in event) {
     try {
       const value = event[key as keyof Event];
@@ -112,9 +112,9 @@ export function logEvent(name: string, event: Event) {
       // Skip properties that throw errors when accessed
     }
   }
-  
+
   action(name)(eventData);
-};
+}
 
 function excludeCategory(
   category: Categories,
@@ -182,7 +182,7 @@ function getTemplateOperators(
     });
 
   component.events?.forEach((event) => {
-    if(!event.name) {
+    if (!event.name) {
       return;
     }
     if (!additionalAttrs[`@${event.name}`]) {
