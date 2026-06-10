@@ -16,7 +16,7 @@
     "analyze": "npm run build && cem analyze",
     "analyze:dev": "cem analyze --watch",
     "changeset": "changeset add",
-    "build": "tsup src/index.ts --dts --format esm",
+    "build": "tsup src/index.ts --dts --format esm --tsconfig tsconfig.build.json",
     "clean": "git clean -fdX",
     "deploy": "npm run build && npm publish",
     "dev": "concurrently -k -r \"npm run analyze:dev\" \"npm run storybook\"",

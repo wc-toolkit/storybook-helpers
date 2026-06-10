@@ -6,7 +6,6 @@ import {
   removeQuotes,
 } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
-import type { ControlOptions } from "./storybook-types.js";
 import type { StorybookHelpersOptions } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
 import { CssCustomProperty } from "custom-elements-manifest";
@@ -16,10 +15,12 @@ type ArgSet = {
   args: ArgTypes;
 };
 
-let options: StorybookHelpersOptions = {};
+type Control = ArgTypes[string]["control"];
+
+let helpersOptions: StorybookHelpersOptions = {};
 
 setTimeout(() => {
-  options = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+  helpersOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 });
 
 export function getAttributesAndProperties(
@@ -61,14 +62,14 @@ export function getAttributesAndProperties(
     }
 
     const name = attribute?.name || member.name;
-    const type = options.typeRef
-      ? (member as any)[`${options.typeRef}`]?.text || member?.type?.text
+    const type = helpersOptions.typeRef
+      ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
+    const { control, options } = getControl(propType, attribute !== undefined);
     const defaultValue = member.readonly
       ? undefined
-      : removeQuotes(member.default || "");
-    const control = getControl(propType, attribute !== undefined);
+      : getDefaultValue(control, member.default);
 
     args[name] = {
       name: name,
@@ -77,30 +78,19 @@ export function getAttributesAndProperties(
         propName,
         member.deprecated as string,
       ),
-      defaultValue: defaultValue
-        ? defaultValue === "''"
-          ? ""
-          : control === "object"
-            ? JSON.parse(formatToValidJson(defaultValue))
-            : defaultValue
-        : undefined,
-      control:
-        enabled && !member.readonly && control ? { type: control } : false,
+      defaultValue,
+      control: enabled && !member.readonly && control ? control : false,
+      options,
       table: {
         category: attribute ? "attributes" : "properties",
         defaultValue: {
-          summary: defaultValue,
+          summary: JSON.stringify(defaultValue),
         },
         type: {
           summary: type,
         },
       },
     };
-
-    const values = propType?.split("|");
-    if (values && values?.length > 1) {
-      args[name].options = values.map((x) => removeQuotes(x)!);
-    }
   });
 
   return { resets, propArgs, attrArgs };
@@ -133,36 +123,32 @@ export function getReactProperties(
       return;
     }
 
-    const type = options.typeRef
-      ? (member as any)[`${options.typeRef}`]?.text || member?.type?.text
+    const type = helpersOptions.typeRef
+      ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
     const propName = `${member.name}`;
-    const controlType = getControl(propType);
+    const { control, options } = getControl(propType);
+    const defaultValue = member.readonly
+      ? undefined
+      : getDefaultValue(control, member.default);
 
     args[propName] = {
       name: member.name,
       description: member.description,
-      defaultValue: getDefaultValue(controlType, member.default),
-      control:
-        enabled && !member.readonly && controlType
-          ? { type: controlType }
-          : false,
+      defaultValue,
+      control: enabled && !member.readonly && control ? control : false,
+      options,
       table: {
         category: "properties",
         defaultValue: {
-          summary: removeQuotes(member.default || ""),
+          summary: JSON.stringify(defaultValue),
         },
         type: {
           summary: type,
         },
       },
     };
-
-    const values = propType?.split("|");
-    if (values && values?.length > 1) {
-      args[propName].options = values.map((x) => removeQuotes(x)!);
-    }
   });
 
   // remove ref property if it exists
@@ -210,11 +196,7 @@ export function getCssProperties(
       name: property.name,
       description: property.description,
       defaultValue: property.default,
-      control: enabled
-        ? {
-            type: getCssPropControl(property),
-          }
-        : false,
+      control: enabled ? getCssPropControl(property) : false,
       table: {
         category: "css properties",
       },
@@ -224,9 +206,7 @@ export function getCssProperties(
   return { resets, args };
 }
 
-function getCssPropControl(
-  property: CssCustomProperty,
-): ControlOptions | undefined {
+function getCssPropControl(property: CssCustomProperty): Control | undefined {
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
   if (
@@ -381,50 +361,97 @@ export function getMethods(component?: Component): ArgSet {
   return { args };
 }
 
-function getDefaultValue(controlType: ControlOptions, defaultValue?: string) {
+function getDefaultValue(control: Control, defaultValue?: string) {
   const initialValue = removeQuotes(defaultValue || "");
-  return controlType === "boolean"
-    ? initialValue === "true"
-    : initialValue === "''"
-      ? ""
-      : initialValue;
+  const controlType =
+    typeof control === "string"
+      ? control
+      : typeof control === "object"
+        ? control.type
+        : undefined;
+  if (controlType === "boolean") {
+    return initialValue === "true";
+  }
+  if (initialValue === "''") {
+    return "";
+  }
+  if (controlType === "object") {
+    return initialValue
+      ? JSON.parse(formatToValidJson(initialValue))
+      : undefined;
+  }
+  return initialValue;
 }
 
-function getControl(type: string, isAttribute = false): ControlOptions {
+function getControl(
+  type: string,
+  isAttribute = false,
+): { control: Control; options?: string[] } {
   if (!type) {
-    return "text";
+    return { control: "text" };
   }
 
-  const lowerType = type.toLowerCase();
-  const options = lowerType
-    .split("|")
-    .map((x) => x.trim())
-    .filter((x) => x !== "" && x !== "null" && x !== "undefined");
+  const arrayInner = parseArrayType(type);
 
-  if (isObject(lowerType) && !isAttribute) {
-    return "object";
+  const options = arrayInner ? parseOptions(arrayInner) : parseOptions(type);
+
+  if (!arrayInner && isObject(type) && !isAttribute) {
+    return { control: "object" };
+  }
+
+  // For primitive types, if the type is an array, we must offer an object control so the user can construct their own array of primitives
+  if (hasType(options, "string")) {
+    return { control: arrayInner ? "object" : "text" };
   }
 
   if (hasType(options, "boolean")) {
-    return "boolean";
+    return { control: arrayInner ? "object" : "boolean" };
   }
 
-  if (hasType(options, "number") && !hasType(options, "string")) {
-    return "number";
+  if (hasType(options, "number")) {
+    return { control: arrayInner ? "object" : "number" };
   }
 
   if (hasType(options, "date")) {
-    return "date";
+    return { control: arrayInner ? "object" : "date" };
   }
 
-  // if types is a list of string options
-  return options.length > 1 ? "select" : "text";
+  // base case, type is a union of literals
+  return {
+    control: arrayInner ? "multi-select" : "select",
+    options: options.map((option) => removeQuotes(option)),
+  };
+}
+
+// matches -> Array< union | of | types >
+const arrayMultiRegex = /^Array<([^>]*\|[^>]*)>$/;
+// matches -> (union | of | types)[]
+const tupleMultiRegex = /^\(([^)]*\|[^)]*)\)\[\]$/;
+
+function parseArrayType(type: string) {
+  const arrayMatch = type.match(arrayMultiRegex);
+  if (arrayMatch?.[1]) {
+    return arrayMatch[1];
+  }
+
+  const tupleMatch = type.match(tupleMultiRegex);
+  if (tupleMatch?.[1]) {
+    return tupleMatch[1];
+  }
+}
+
+function parseOptions(type: string) {
+  return type
+    .split("|")
+    .map((x) => x.trim())
+    .map((x) => (x.startsWith("'") || x.startsWith('"') ? x : x.toLowerCase()))
+    .filter((x) => x !== "" && x !== "null" && x !== "undefined");
 }
 
 function isObject(type: string) {
   return (
-    type.includes("array") ||
-    type.includes("object") ||
+    type.toLowerCase().includes("array") ||
+    type.toLowerCase().includes("object") ||
     type.includes("{") ||
     type.includes("[") ||
     type.includes("<")
@@ -462,7 +489,7 @@ function getDescription(
 ) {
   let desc = getMemberDescription(description, deprecated);
 
-  return options.hideArgRef || !argRef
+  return helpersOptions.hideArgRef || !argRef
     ? desc
     : (desc += `\n\n\narg ref - \`${argRef}\``);
 }
