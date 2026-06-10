@@ -2,4 +2,4 @@
 "@wc-toolkit/storybook-helpers": minor
 ---
 
-Limit propagation of URL param "args" to known arguments only
+Add support for disabling the propagation of attribute changes to Storybook URL params
