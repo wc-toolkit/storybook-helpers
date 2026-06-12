@@ -372,10 +372,10 @@ function getDefaultValue(control: Control, defaultValue?: string) {
   if (controlType === "boolean") {
     return initialValue === "true";
   }
-  if (initialValue === "''") {
+  if (initialValue === "''" || initialValue === '""') {
     return "";
   }
-  if (controlType === "object") {
+  if (controlType === "object" || controlType === "multi-select") {
     return initialValue
       ? JSON.parse(formatToValidJson(initialValue))
       : undefined;

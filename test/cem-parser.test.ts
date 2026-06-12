@@ -160,11 +160,28 @@ describe("getAttributesAndProperties — default values", () => {
     expect(attrArgs[FIELD].defaultValue).toBe("");
   });
 
+  it("normalizes a double-quoted empty-string literal default to ''", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      attrComponent("string", { default: '""' }),
+    );
+    expect(attrArgs[FIELD].defaultValue).toBe("");
+  });
+
   it("uses the unwrapped literal as the default for select controls", () => {
     const { attrArgs } = getAttributesAndProperties(
       attrComponent("'a' | 'b'", { default: "'a'" }),
     );
     expect(attrArgs[FIELD].defaultValue).toBe("a");
+  });
+
+  it("parses array defaults into an array for multi-select controls", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      attrComponent("Array<'error' | 'warning' | 'info' | 'success'>", {
+        default: "['error']",
+      }),
+    );
+    expect(attrArgs[FIELD].control).toBe("multi-select");
+    expect(attrArgs[FIELD].defaultValue).toEqual(["error"]);
   });
 
   it("returns undefined defaultValue for readonly members", () => {
