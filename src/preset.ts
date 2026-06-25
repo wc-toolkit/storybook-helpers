@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs";
 
 export interface CEMWatchOptions {
   path?: string;
@@ -14,58 +13,73 @@ function resolveManifestPath(configDir?: string, override?: string) {
 export function storybookHelpersPreset(opts: CEMWatchOptions = {}) {
   const { path: overridePath, enabled = true } = opts;
 
-  function viteFinal(existingConfig: any, { configDir }: { configDir?: string }) {
-    if (!enabled) return existingConfig;
+  function viteFinal(existingConfig: unknown, { configDir }: { configDir?: string }) {
+    if (!enabled) return existingConfig as unknown;
     const manifestPath = resolveManifestPath(configDir, overridePath);
+
+    type ViteWatcherLike = {
+      add: (p: string) => void;
+      on: (ev: string, cb: (file: string) => void) => void;
+    };
+    type ViteWSLike = { send: (payload: unknown) => void };
+    type ViteServerLike = { watcher: ViteWatcherLike; ws: ViteWSLike };
+
     const plugin = {
       name: "wc-toolkit-watch-cem",
-      configureServer(server: any) {
+      configureServer(server: unknown) {
+        const s = server as ViteServerLike;
         try {
-          server.watcher.add(manifestPath);
-          server.watcher.on("change", (file: string) => {
+          // ensure watcher is aware of the file and trigger a full reload when it changes
+          s.watcher.add(manifestPath);
+          s.watcher.on("change", (file: string) => {
             if (file === manifestPath) {
-              server.ws.send({ type: "full-reload" });
+              s.ws.send({ type: "full-reload" });
             }
           });
-        } catch (e) {
+        } catch {
           // ignore; best-effort
         }
       },
     };
 
+    const cfg = existingConfig as Record<string, unknown>;
     return {
-      ...existingConfig,
-      plugins: [...(existingConfig?.plugins || []), plugin],
+      ...cfg,
+      plugins: [...((cfg?.plugins as unknown[]) || []), plugin],
     };
   }
 
-  function webpackFinal(existingConfig: any, { configDir }: { configDir?: string }) {
-    if (!enabled) return existingConfig;
+  function webpackFinal(existingConfig: unknown, { configDir }: { configDir?: string }) {
+    if (!enabled) return existingConfig as unknown;
     const manifestPath = resolveManifestPath(configDir, overridePath);
 
+    type CompilationLike = { fileDependencies?: Set<string> | Array<string> };
+    type CompilerLike = { hooks: { afterCompile: { tap: (name: string, cb: (compilation: CompilationLike) => void) => void } } };
+
     class WatchCEMWebpackPlugin {
-      apply(compiler: any) {
-        compiler.hooks.afterCompile.tap("WatchCEMWebpackPlugin", (compilation: any) => {
+      apply(compiler: unknown) {
+        const c = compiler as CompilerLike;
+        c.hooks.afterCompile.tap("WatchCEMWebpackPlugin", (compilation: CompilationLike) => {
           try {
-            compilation.fileDependencies.add(manifestPath);
-          } catch (e) {
-            // File dependencies may be a set or array depending on Webpack version
-            try {
-              if (Array.isArray(compilation.fileDependencies)) {
-                compilation.fileDependencies.push(manifestPath);
-              }
-            } catch (err) {
-              // ignore
+            // Some webpack versions expose fileDependencies as a Set
+            const fd = compilation.fileDependencies as unknown;
+            if (fd && typeof (fd as { add?: unknown }).add === "function") {
+              (fd as Set<string>).add(manifestPath);
+            } else if (Array.isArray(fd)) {
+              (fd as Array<string>).push(manifestPath);
             }
+          } catch {
+            // ignore; best-effort
           }
         });
       }
     }
 
     const pluginInstance = new WatchCEMWebpackPlugin();
+    const cfg = existingConfig as Record<string, unknown>;
     return {
-      ...existingConfig,
-      plugins: [...(existingConfig?.plugins || []), pluginInstance],
+      ...cfg,
+      plugins: [...((cfg?.plugins as unknown[]) || []), pluginInstance],
     };
   }
 
