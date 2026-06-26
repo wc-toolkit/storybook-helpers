@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.4.0
+
+### Minor Changes
+
+- ae1d98f: Add support for disabling the propagation of attribute changes to Storybook URL params
+
 ## 10.3.2
 
 ### Patch Changes
