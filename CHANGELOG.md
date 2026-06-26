@@ -1,5 +1,12 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.3.2
+
+### Patch Changes
+
+- eb7968e: simplify category ordering
+- c0250c7: fixed categoryOrder support
+
 ## 10.3.1
 
 ### Patch Changes
