@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 
 /**
  * An sample element.
- * 
+ *
  * @tag my-element2
  *
  * @slot - This adds content between the logo and the counter button
@@ -31,11 +31,11 @@ export class MyElement2 extends LitElement {
 
   /** Adds a label to the component */
   @property()
-  label? = 'count is:';
+  label? = "count is:";
 
   /** Adds a label to the component */
   @property()
-  label2? = 'count is:';
+  label2? = "count is:";
 
   /** Increments the `count`. */
   increment() {
@@ -62,7 +62,11 @@ export class MyElement2 extends LitElement {
             href="https://storybook.js.org/docs/get-started/web-components-vite"
             target="_blank"
           >
-            <img src="/storybook.svg" class="logo" alt="Storybook logo" />
+            <img
+              src="https://wc-toolkit.com/_astro/wc-toolkit-icon.M2DETGo4_Z26pE6D.webp"
+              class="logo"
+              alt="Storybook logo"
+            />
           </a>
         </div>
         <slot></slot>

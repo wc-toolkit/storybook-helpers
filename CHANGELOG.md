@@ -1,5 +1,87 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.3.0
+
+### Minor Changes
+
+- 4155670: Added typing lookup for `cssProperties`. If your Custom Elements Manifest includes typed `@cssprop` declarations, Storybook Helpers will choose a better control automatically:
+
+  - `@cssprop {<color>}` or CSS property names that include `color` or `colour` use the `color` control
+  - `@cssprop {<number>}` and `@cssprop {<integer>}` use the `number` control
+  - All other CSS custom properties fall back to the `text` control
+
+## 10.2.3
+
+### Patch Changes
+
+- 6fccd93: Do not overwrite event handlers from args with logEvent-handler
+
+## 10.2.2
+
+### Patch Changes
+
+- d10f4d9: Fix typo in `argsObserver` variable name in `syncControls` function.
+
+## 10.2.1
+
+### Patch Changes
+
+- 98603e1: Added stability to the `args` observer
+
+## 10.2.0
+
+### Minor Changes
+
+- c619a28: Updated `template` to capture events in "Actions" panel
+
+### Patch Changes
+
+- c619a28: Added `logEvent` helper to manually log events to the "Actions" panel
+- c619a28: Deprecated the `events` property as the actions handler is no longer supported
+
+## 10.0.0
+
+### Major Changes
+
+- 71fdac7: Updated exports to be ESM only in order to make storybook-helpers compatible with Storybook v10
+
+## 9.0.1
+
+### Patch Changes
+
+- c733b62: Resolved a slot template issue preventing non-text slots from rendering
+
+## 9.0.0
+
+### Major Changes
+
+- 70578b4: Upgrade package to support Storybook v9
+
+## 1.1.5
+
+### Patch Changes
+
+- 02c3c29: Fixed issue with `querySelector` when using `component` variable
+
+## 1.1.4
+
+### Patch Changes
+
+- 89a26ed: Adjusts ArgTypes export to source from Storybook
+
+## 1.1.3
+
+### Patch Changes
+
+- e8c4db0: Resolves an issue where non properties were throwing type errors (slots, cssprops, etc)
+- f7ac995: Fixes an incorrect import path in the documentation
+
+## 1.1.2
+
+### Patch Changes
+
+- 00494f5: added readonly support for properties
+
 ## 1.1.1
 
 ### Patch Changes

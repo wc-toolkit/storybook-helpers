@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 
 /**
  * An sample element.
- * 
+ *
  * @tag my-element
  *
  * @slot - This adds content between the logo and the counter button
@@ -12,14 +12,15 @@ import { customElement, property } from "lit/decorators.js";
  * @csspart button - The button
  * @csspart docs-hint - Adds custom styles to the docs hint
  *
- * @cssprop [--card-border-color=#ccc] - The card border color
- * @cssprop [--card-border-size=1px] - The card border color
- * @cssprop [--card-border-style=solid] - The card border color
- * @cssprop [--card-border-radius=8px] - The card border radius
+ * @cssprop {<color>} [--card-border-color=#ccc] - The card border color
+ * @cssprop {<color>} [--card-background-colour=#ccc] - Used alternate spelling
+ * @cssprop {<length>} [--card-border-size=1px] - The card border size
+ * @cssprop {<string>} [--card-border-style=solid] - The card border style
+ * @cssprop {<length>} [--card-border-radius=8px] - The card border radius
  *
  * @event {MyType} count - This is a custom event
  * @event {MyType} fakeEvent - This is a custom event
- * 
+ *
  */
 @customElement("my-element")
 export class MyElement extends LitElement {
@@ -33,11 +34,11 @@ export class MyElement extends LitElement {
 
   /** Adds a label to the component */
   @property()
-  label? = 'count is:';
+  label? = "count is:";
 
   /** Adds a label to the component */
   @property()
-  union?: 'value1' | 'value2' | 'value3' | 'value4' = 'value1';
+  union?: "value1" | "value2" | "value3" | "value4" = "value1";
 
   /** Adds a label to the component */
   @property({ type: Boolean, reflect: true })
@@ -46,12 +47,12 @@ export class MyElement extends LitElement {
   /** Test object property */
   @property({ attribute: false, type: Object })
   jsonHint: object = {
-    docsHint: 'Click on the Storybook logo to learn more',
+    docsHint: "Click on the Storybook logo to learn more",
   };
 
   /** Test object property */
   @property({ attribute: false, type: Array })
-  hobbies: Array<string> = ['baseball', 'soccer', 'tennis'];
+  hobbies: Array<string> = ["baseball", "soccer", "tennis"];
 
   /**
    * Readonly - returns the time remaining
@@ -85,12 +86,20 @@ export class MyElement extends LitElement {
             href="https://storybook.js.org/docs/get-started/web-components-vite"
             target="_blank"
           >
-            <img src="/storybook.svg" class="logo" alt="Storybook logo" />
+            <img
+              src="https://wc-toolkit.com/_astro/wc-toolkit-icon.M2DETGo4_Z26pE6D.webp"
+              class="logo"
+              alt="Storybook logo"
+            />
           </a>
         </div>
         <slot></slot>
         <div>
-          <button ?disabled=${this.disabled} @click=${this._onClick} part="button">
+          <button
+            ?disabled=${this.disabled}
+            @click=${this._onClick}
+            part="button"
+          >
             ${this.label} ${this.count}
             <slot name="button-content"></slot>
           </button>

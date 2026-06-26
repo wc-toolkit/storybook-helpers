@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { spread } from "./spread";
-import { useArgs } from "@storybook/preview-api";
+import { spread } from "./spread.js";
+import { useArgs } from "storybook/preview-api";
 import { html, unsafeStatic } from "lit/static-html.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
-import type { Categories, Options } from "./types";
+import type { Categories, StorybookHelpersOptions } from "./types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes } from "./storybook-types";
+import type { ArgTypes } from "@storybook/web-components";
 import {
   getAttributesAndProperties,
   getCssParts,
   getCssProperties,
   getCssStates,
   getSlots,
-} from "./cem-parser";
+} from "./cem-parser.js";
+import { action } from "storybook/actions";
 
 let argObserver: MutationObserver | undefined;
 let lastTagName: string | undefined;
-let options: Options = {};
+let options: StorybookHelpersOptions = {};
 
 setTimeout(() => {
   options = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
@@ -36,7 +37,7 @@ export function getTemplate(
   slot?: TemplateResult,
   argTypes?: ArgTypes,
   excludeCategories?: Categories[],
-  setComponentVariable?: boolean
+  setComponentVariable?: boolean,
 ): TemplateResult {
   if (!args) {
     return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
@@ -59,9 +60,9 @@ export function getTemplate(
 ${
   options.setComponentVariable || setComponentVariable
     ? unsafeHTML(
-        "<script>\n  window.component = document.querySelector(" +
+        "<script>\n  window.component = document.querySelector('" +
           component!.tagName! +
-          ");\n</script>"
+          "');\n</script>",
       )
     : ""
 }
@@ -77,7 +78,7 @@ ${
 export function getStyleTemplate(
   component?: Component,
   args?: any,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
 ) {
   const cssPropertiesTemplate = excludeCategory("cssProps", excludeCategories)
     ? ""
@@ -94,15 +95,30 @@ export function getStyleTemplate(
 
   return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
     /\s+/g,
-    ""
+    "",
   ) !== ""
     ? (unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult)
     : "";
 }
 
+export function logEvent(name: string, event: Event) {
+  const eventData: Record<string, unknown> = {};
+
+  for (const key in event) {
+    try {
+      const value = event[key as keyof Event];
+      eventData[key] = value;
+    } catch {
+      // Skip properties that throw errors when accessed
+    }
+  }
+
+  action(name)(eventData);
+}
+
 function excludeCategory(
   category: Categories,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
 ) {
   return (
     !options.categoryOrder?.includes(category) ||
@@ -120,7 +136,7 @@ function excludeCategory(
 function getTemplateOperators(
   component: Component,
   args: any,
-  argTypes?: ArgTypes
+  argTypes?: ArgTypes,
 ) {
   const { propArgs, attrArgs } = getAttributesAndProperties(component);
   const attrOperators: any = {};
@@ -131,8 +147,10 @@ function getTemplateOperators(
     const attr = attrArgs[key];
     const attrName = attr.name;
     const attrValue = args![key] as unknown;
-    const prop: string =
-      (attr.control as any).type === "boolean" ? `?${attrName}` : attrName;
+    const prop =
+      (attr.control as any).type === "boolean"
+        ? `?${attrName}`
+        : (attrName as string);
     if (
       attrValue !== attrArgs[key].defaultValue ||
       options.renderDefaultValues
@@ -162,6 +180,15 @@ function getTemplateOperators(
         additionalAttrs[key] = args[key];
       }
     });
+
+  component.events?.forEach((event) => {
+    if (!event.name) {
+      return;
+    }
+    if (!additionalAttrs[`@${event.name}`]) {
+      additionalAttrs[`@${event.name}`] = (e: Event) => logEvent(event.name, e);
+    }
+  });
 
   return { attrOperators, propOperators, additionalAttrs };
 }
@@ -269,7 +296,7 @@ ${cssStateValue
 function getSlotsTemplate(
   component: Component,
   args: any,
-  excludeCategories?: Categories[]
+  excludeCategories?: Categories[],
 ) {
   if (
     !component?.slots?.length ||
@@ -295,16 +322,16 @@ function getSlotsTemplate(
       container.innerHTML = slotValue;
 
       for (const child of container.childNodes) {
-        if (child.textContent?.trim() === "" || child.textContent === "\n") {
-          slotContent += child.textContent;
-          continue;
-        }
-
         if (child instanceof Text) {
           slotContent += `  <span slot=${slotName}>${child.textContent}</span>`;
         } else if (child instanceof Element) {
           child.setAttribute("slot", slotName!);
           slotContent += `  ${child.outerHTML}`;
+        } else if (
+          child.textContent?.trim() === "" ||
+          child.textContent === "\n"
+        ) {
+          slotContent += child.textContent;
         }
       }
 
@@ -325,10 +352,12 @@ function syncControls(component: Component) {
 
   // wait for story to render before trying to attach the observer
   setTimeout(() => {
-    const selectedComponent = document.querySelector(component.tagName!)!;
-    argObserver?.observe(selectedComponent, {
-      attributes: true,
-    });
+    const selectedComponent = document.querySelector(component.tagName!);
+    if (selectedComponent && argObserver) {
+      argObserver.observe(selectedComponent, {
+        attributes: true,
+      });
+    }
   });
 }
 
