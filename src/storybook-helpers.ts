@@ -45,7 +45,9 @@ let userOptions: StorybookHelpersOptions = {
  * sets the global config for the Storybook helpers
  * @param options
  */
-export function setStorybookHelpersConfig(options: StorybookHelpersOptions = {}) {
+export function setStorybookHelpersConfig(
+  options: StorybookHelpersOptions = {},
+) {
   options = { ...defaultOptions, ...options };
   (globalThis as any).__WC_STORYBOOK_HELPERS_CONFIG__ = options;
   userOptions = options;
@@ -58,9 +60,12 @@ export function setStorybookHelpersConfig(options: StorybookHelpersOptions = {})
  */
 export function getStorybookHelpers<T>(
   tagName: string,
-  options?: StoryOptions
+  options?: StoryOptions,
 ): StoryHelpers<T> {
-  userOptions = { ...defaultOptions, ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}) };
+  userOptions = {
+    ...defaultOptions,
+    ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
+  };
   const cem = getManifest();
   const component = getComponent(cem, tagName);
   const eventNames = component?.events?.map((event) => event.name) || [];
@@ -82,7 +87,7 @@ export function getStorybookHelpers<T>(
         slot,
         argTypes,
         options?.excludeCategories || [],
-        options?.setComponentVariable
+        options?.setComponentVariable,
       ),
   };
 
@@ -94,7 +99,7 @@ function getManifest(): Package {
   const cem: Package = (window as any).__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__;
   if (!cem) {
     throw new Error(
-      `Custom Elements Manifest not found. Be sure to follow the pre-install steps in this guide:\nhttps://www.npmjs.com/package/wc-storybook-helpers#before-you-install`
+      `Custom Elements Manifest not found. Be sure to follow the pre-install steps in this guide:\nhttps://www.npmjs.com/package/wc-storybook-helpers#before-you-install`,
     );
   }
   return cem;
@@ -105,7 +110,7 @@ function getComponent(cem: Package, tagName: string): Component | undefined {
 
   if (!component) {
     throw new Error(
-      `A component with the tag name "${tagName}" was not found in the Custom Elements Manifest. If it's missing in the CEM, it's often the result of a missing "@tag" or "@tagName" tag in the component's JSDoc.\nAdditional information can be found here:\nhttps://custom-elements-manifest.open-wc.org/analyzer/getting-started/#supported-jsdoc`
+      `A component with the tag name "${tagName}" was not found in the Custom Elements Manifest. If it's missing in the CEM, it's often the result of a missing "@tag" or "@tagName" tag in the component's JSDoc.\nAdditional information can be found here:\nhttps://custom-elements-manifest.open-wc.org/analyzer/getting-started/#supported-jsdoc`,
     );
   }
 
@@ -119,7 +124,7 @@ function getComponent(cem: Package, tagName: string): Component | undefined {
  */
 function getArgTypes(
   component?: Component,
-  excludeCategories?: Array<Categories>
+  excludeCategories?: Array<Categories>,
 ): ArgTypes {
   const cssProps = getCssProperties(component);
   const cssParts = getCssParts(component);
@@ -150,7 +155,7 @@ function getArgTypes(
     attrsAndProps.resets,
     events.resets,
     cssStates.resets,
-    methods.resets
+    methods.resets,
   );
 
   userOptions.categoryOrder?.forEach((category) => {
@@ -200,7 +205,7 @@ function getDefaultValue(value?: string | number | boolean | object) {
  */
 function getReactProps(
   component?: Component,
-  excludeCategories?: Array<Categories>
+  excludeCategories?: Array<Categories>,
 ): ArgTypes {
   const cssProps = getCssProperties(component);
   const cssParts = getCssParts(component);
@@ -209,8 +214,10 @@ function getReactProps(
   const events = getReactEvents(component);
   const cssStates = getCssStates(component);
   const methods = getMethods(component);
-  const options: StorybookHelpersOptions =
-    { ...defaultOptions, ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}) };
+  const options: StorybookHelpersOptions = {
+    ...defaultOptions,
+    ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
+  };
 
   const args: Record<Exclude<Categories, "attributes">, ArgTypes> = {
     cssParts: cssParts.args,
@@ -236,7 +243,7 @@ function getReactProps(
     (category: Exclude<Categories, "attributes">) => {
       if (excludeCategories?.includes(category)) return;
       argTypes = { ...argTypes, ...(args[category] || {}) };
-    }
+    },
   );
 
   return argTypes;

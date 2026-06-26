@@ -53,7 +53,7 @@ export type StoryHelpers<T> = {
     args?: Partial<T> & { [key: string]: any },
     slot?: TemplateResult,
   ) => TemplateResult;
-  /** 
+  /**
    * List of custom events emitted by the component
    * @deprecated adding events to the story's meta is no longer supported in v10. If you are using the `template` function to render your component, the events will be automatically bound. Otherwise, you can manually map them using the `logEvent` function.
    */

@@ -134,11 +134,12 @@ const { args, argTypes, template } = getStorybookHelpers<MyElement>(
   {
     excludeCategories: ["methods", "cssStates"], // Hide specific categories
     setComponentVariable: true, // Access element via `component` variable
-  }
+  },
 );
 ```
 
 Available options:
+
 - **`excludeCategories`**: Array of categories to hide (`"attributes"`, `"properties"`, `"slots"`, `"cssProps"`, `"cssParts"`, `"cssStates"`, `"methods"`, `"events"`)
 - **`setComponentVariable`**: Creates a global `component` variable for the element instance
 
@@ -171,7 +172,8 @@ The `template` function accepts a second parameter for slot content:
 import { html } from "lit";
 
 export const WithSlotContent: Story = {
-  render: (args) => template(args, html`<p>This content goes in the default slot</p>`),
+  render: (args) =>
+    template(args, html`<p>This content goes in the default slot</p>`),
 };
 ```
 
@@ -224,9 +226,10 @@ const { logEvent } = getStorybookHelpers<MyElement>("my-element");
 
 export const CustomRender: Story = {
   render: (args) => html`
-    <my-element 
-      @my-event=${(e: Event) => logEvent('my-event', e)}
-      @count=${(e: Event) => logEvent('count', e)}>
+    <my-element
+      @my-event=${(e: Event) => logEvent("my-event", e)}
+      @count=${(e: Event) => logEvent("count", e)}
+    >
     </my-element>
   `,
 };
@@ -239,9 +242,9 @@ Enable `setComponentVariable` to access the element in your browser console:
 ```ts
 const { args, argTypes, template } = getStorybookHelpers<MyElement>(
   "my-element",
-  { 
-    setComponentVariable: true 
-  }
+  {
+    setComponentVariable: true,
+  },
 );
 
 // In your browser console, you can now access:
@@ -272,14 +275,15 @@ export default {
 ```ts
 presets: [
   // watches the file at the given path relative to your Storybook configDir
-  storybookHelpersReloader({ 
-    path: "../build/custom-elements.json", 
-    enabled: true 
+  storybookHelpersReloader({
+    path: "../build/custom-elements.json",
+    enabled: true,
   }),
-]
+];
 ```
 
 Behavior:
+
 - Vite: registers a Vite plugin that watches the manifest and issues a full-reload via the Vite server websocket when the file changes.
 - Webpack 5: adds the manifest to webpack's fileDependencies so the dev server will pick up changes and rebuild.
 
@@ -290,18 +294,21 @@ If your Storybook uses a non-standard config directory, the preset resolves the 
 ### "Custom Elements Manifest not found" Error
 
 This error means the Custom Elements Manifest hasn't been loaded. Ensure you:
+
 1. Generated a `custom-elements.json` file using [@custom-elements-manifest/analyzer](https://custom-elements-manifest.open-wc.org/)
 2. Imported and set the manifest in `.storybook/preview.ts` using `setCustomElementsManifest(manifest)`
 
 ### Controls Not Showing Up
 
 Make sure you:
+
 1. Set `controls: { expanded: true }` in your Storybook config
 2. Your Custom Elements Manifest includes JSDoc comments for your component's properties, attributes, events, etc.
 
 ### TypeScript Errors with Template
 
 If you get TypeScript errors, ensure:
+
 1. You're importing your element's type: `import type { MyElement } from './my-element.js'`
 2. You're passing the type to `getStorybookHelpers<MyElement>("my-element")`
 3. Your element class is exported from its module
