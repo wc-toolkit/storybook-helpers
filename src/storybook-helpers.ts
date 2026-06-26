@@ -144,25 +144,26 @@ function getArgTypes(
     slots: slots.args,
   };
 
-  // Start with resets so they appear first
-  const baseResets: ArgTypes = {
-    ...cssProps.resets,
-    ...cssParts.resets,
-    ...slots.resets,
-    ...attrsAndProps.resets,
-    ...events.resets,
-    ...cssStates.resets,
-    ...methods.resets,
-  };
+  // Combine all resets so they appear first
+  const combined: ArgTypes = {};
+  Object.assign(
+    combined,
+    cssProps.resets || {},
+    cssParts.resets || {},
+    slots.resets || {},
+    attrsAndProps.resets || {},
+    events.resets || {},
+    cssStates.resets || {},
+    methods.resets || {},
+  );
 
-  const orderedArgTypes: ArgTypes = { ...baseResets };
-
+  // Merge categories in configured order
   getCategoriesOrder().forEach((category) => {
     if (excludeCategories?.includes(category)) return;
-    Object.assign(orderedArgTypes, args[category] || {});
+    Object.assign(combined, args[category] || {});
   });
 
-  return orderedArgTypes;
+  return sortByCategories(combined, args);
 }
 
 /**
@@ -224,26 +225,26 @@ function getReactProps(
     slots: slots.args,
   };
 
-  const baseResets: ArgTypes = {
-    ...cssProps.resets,
-    ...cssParts.resets,
-    ...slots.resets,
-    ...attrsAndProps.resets,
-    ...events.resets,
-    ...cssStates.resets,
-    ...methods.resets,
-  };
-
-  const orderedArgTypes: ArgTypes = { ...baseResets };
+  const combined: ArgTypes = {};
+  Object.assign(
+    combined,
+    cssProps.resets || {},
+    cssParts.resets || {},
+    slots.resets || {},
+    attrsAndProps.resets || {},
+    events.resets || {},
+    cssStates.resets || {},
+    methods.resets || {},
+  );
 
   (getCategoriesOrder() as Array<Exclude<Categories, "attributes">>)?.forEach(
-    (category: Exclude<Categories, "attributes">) => {
+    (category) => {
       if (excludeCategories?.includes(category)) return;
-      Object.assign(orderedArgTypes, args[category] || {});
+      Object.assign(combined, args[category] || {});
     },
   );
 
-  return orderedArgTypes;
+  return sortByCategories(combined, { ...args, attributes: {} });
 }
 
 /**
@@ -276,4 +277,24 @@ function getCategoriesOrder(): Array<Categories> {
     ...configuredOrder,
     ...defaultOptions.categoryOrder!.filter((category) => !configuredOrder.includes(category)),
   ];
+}
+
+/**
+ * Sorts the entries of the given ArgTypes using the configured categories order
+ * @param argTypes the object to sort
+ * @param args the dictionary of arguments by category
+ * @returns a copy of the `argTypes` with entries `sorted`
+ */
+function sortByCategories(argTypes: ArgTypes, args: Record<Categories, ArgTypes>): ArgTypes {
+  const sortedArgTypes: ArgTypes = Object.assign({}, argTypes);
+  getCategoriesOrder().forEach((category) => {
+    // Force order by not using the Object.assign method
+    Object.keys(args[category] || {}).forEach((k) => {
+      if (argTypes[k]) {
+        delete sortedArgTypes[k];
+        sortedArgTypes[k] = argTypes[k];
+      }
+    });
+  });
+  return sortedArgTypes;
 }
