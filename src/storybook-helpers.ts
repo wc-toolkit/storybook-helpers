@@ -106,77 +106,39 @@ function slugify(s = "") {
  * Decorator to scope CSS custom properties to a story using the story name.
  * Usage: decorators: [scopedStylesDecorator('sb-story')]
  */
-export function scopedStylesDecorator(prefix = "sb-story") {
+export function scopedStylesDecorator(
+  prefix = "sb-story",
+  styles?: string | ((slug: string) => string),
+) {
   return (Story: any, context: any) => {
     const slug = slugify(context?.name || context?.title || "story");
     const wrapper = document.createElement("div");
     wrapper.className = `${prefix}-${slug}`;
 
+    // Inject <style> into wrapper (light DOM) if styles provided
+    if (styles) {
+      try {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = typeof styles === "function" ? styles(slug) : styles;
+        wrapper.appendChild(styleEl);
+      } catch {
+        // ignore
+      }
+    }
+
     const result = Story();
 
-    // If Story returned a DOM Node, just append it
+    // Append rendered story content into wrapper. Keep markup intact so docs/source remains readable.
     if (result instanceof Node) {
       wrapper.appendChild(result);
       return wrapper;
     }
 
-    // If Story returns a lit TemplateResult or string, render it into the wrapper
     try {
-      // Clear any existing content (defensive)
-      wrapper.innerHTML = "";
-      // Use Lit's render to produce real DOM inside the wrapper — preserves structure/indentation
       render(result as any, wrapper);
-
-      // Normalize rendered nodes and build a formatted HTML string so
-      // Storybook Docs shows the opening tag, children, and closing tag
-      // on their own lines with consistent indentation.
-      const indent = "  ";
-      const rawNodes = Array.from(wrapper.childNodes);
-
-      // Keep element nodes and non-empty text nodes only
-      const nodes = rawNodes.filter((n) =>
-        n.nodeType === Node.ELEMENT_NODE ||
-        (n.nodeType === Node.TEXT_NODE && n.textContent && n.textContent.trim() !== "")
-      );
-
-      // Build a formatted HTML string
-      let html = "\n";
-      nodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const el = node as Element;
-          const tag = el.tagName.toLowerCase();
-
-          if (tag === "style" || tag === "script") {
-            // Normalize inner text lines
-            const content = (el.textContent || "").replace(/\r/g, "").split("\n").map(l => l.trim()).filter(l => l !== "");
-            html += `  <${tag}>\n`;
-            if (content.length) {
-              html += content.map(l => `${indent}${l}`).join("\n") + "\n";
-            }
-            html += `  </${tag}>\n`;
-          } else {
-            // Put the element's outerHTML on its own indented line
-            html += `  ${el.outerHTML}\n`;
-          }
-        } else if (node.nodeType === Node.TEXT_NODE) {
-          const text = (node.textContent || "").trim();
-          if (text) html += `  ${text}\n`;
-        }
-      });
-
-      // Final newline so the closing wrapper appears on its own line
-      html += "\n";
-
-      wrapper.innerHTML = html;
       return wrapper;
     } catch {
-      // Fallback: try wrapping as a TemplateResult (some frameworks prefer this)
-      try {
-        return html`<div class="${prefix}-${slug}">${result}</div>`;
-      } catch {
-        // Final fallback: return wrapper
-        return wrapper;
-      }
+      return wrapper;
     }
   };
 }

@@ -2,6 +2,7 @@ import type { Preview } from "@storybook/web-components-vite";
 import { setCustomElementsManifest } from "@storybook/web-components-vite";
 import customElements from "../custom-elements.json" with { type: "json" };
 import { setStorybookHelpersConfig, scopedStylesDecorator } from "../../src/index.js";
+import "./story-scopes.css";
 
 setStorybookHelpersConfig({
   /** hides the `arg ref` label on each control */
@@ -35,6 +36,11 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/,
       },
+    },
+    docs: {
+      // Exclude decorators from the rendered source snippet so wrapper classes
+      // (used for scoping CSS) don't appear in the docs code block.
+      source: { excludeDecorators: true },
     },
   },
   // Example: scope CSS variables per-story using the story name
