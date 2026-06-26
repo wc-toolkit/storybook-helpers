@@ -127,29 +127,42 @@ export function scopedStylesDecorator(prefix = "sb-story") {
       // Use Lit's render to produce real DOM inside the wrapper — preserves structure/indentation
       render(result as any, wrapper);
 
-      // Insert newline and indentation text nodes so Storybook Docs serializes
-      // the markup with a newline after the opening tag and indented children.
+      // Normalize rendered nodes and append with a single newline + indent
       const indent = "  ";
-      const nodes = Array.from(wrapper.childNodes);
-      // Move children into the wrapper with indentation
+      const rawNodes = Array.from(wrapper.childNodes);
+
+      // Keep element nodes and non-empty text nodes only
+      const nodes = rawNodes.filter((n) =>
+        n.nodeType === Node.ELEMENT_NODE ||
+        (n.nodeType === Node.TEXT_NODE && n.textContent && n.textContent.trim() !== "")
+      );
+
+      // Move children into an empty wrapper with controlled newlines/indent
       wrapper.innerHTML = "";
-      wrapper.appendChild(document.createTextNode("\n"));
+
       nodes.forEach((node) => {
-        // If it's a <style> element, indent its internal lines for readability
-        if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName.toLowerCase() === "style") {
-          const styleEl = node as HTMLStyleElement;
-          if (styleEl.textContent) {
-            styleEl.textContent = styleEl.textContent
+        // Normalize <style> and <script> contents: trim leading/trailing blank lines and indent inner lines
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const tag = (node as Element).tagName.toLowerCase();
+          if ((tag === "style" || tag === "script") && (node as Element).textContent) {
+            const el = node as Element & { textContent: string };
+            const lines = el.textContent
+              .replace(/\r/g, "")
               .split("\n")
-              .map((line) => (line ? indent + line : line))
-              .join("\n");
+              .map((l) => l.replace(/\s+$/, ""));
+            // strip leading/trailing empty lines
+            while (lines.length && lines[0].trim() === "") lines.shift();
+            while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
+            el.textContent = lines.map((l) => (l ? indent + l : l)).join("\n");
           }
         }
 
-        wrapper.appendChild(document.createTextNode(indent));
+        wrapper.appendChild(document.createTextNode("\n" + indent));
         wrapper.appendChild(node);
-        wrapper.appendChild(document.createTextNode("\n"));
       });
+
+      // Close with a newline so the closing tag sits on its own line
+      wrapper.appendChild(document.createTextNode("\n"));
 
       return wrapper;
     } catch {
