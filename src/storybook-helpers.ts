@@ -144,26 +144,26 @@ function getArgTypes(
     slots: slots.args,
   };
 
-  const argTypes: ArgTypes = {};
-
-  // Combine all resets
+  // Combine all resets so they appear first
+  const combined: ArgTypes = {};
   Object.assign(
-    argTypes,
-    cssProps.resets,
-    cssParts.resets,
-    slots.resets,
-    attrsAndProps.resets,
-    events.resets,
-    cssStates.resets,
-    methods.resets,
+    combined,
+    cssProps.resets || {},
+    cssParts.resets || {},
+    slots.resets || {},
+    attrsAndProps.resets || {},
+    events.resets || {},
+    cssStates.resets || {},
+    methods.resets || {},
   );
 
+  // Merge categories in configured order
   getCategoriesOrder().forEach((category) => {
     if (excludeCategories?.includes(category)) return;
-    Object.assign(argTypes, args[category]);
+    Object.assign(combined, args[category] || {});
   });
 
-  return sortByCategories(argTypes, args);
+  return sortByCategories(combined, args);
 }
 
 /**
@@ -214,10 +214,6 @@ function getReactProps(
   const events = getReactEvents(component);
   const cssStates = getCssStates(component);
   const methods = getMethods(component);
-  const options: StorybookHelpersOptions = {
-    ...defaultOptions,
-    ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
-  };
 
   const args: Record<Exclude<Categories, "attributes">, ArgTypes> = {
     cssParts: cssParts.args,
@@ -229,24 +225,26 @@ function getReactProps(
     slots: slots.args,
   };
 
-  let argTypes: ArgTypes = {
-    ...cssProps.resets,
-    ...cssParts.resets,
-    ...slots.resets,
-    ...attrsAndProps.resets,
-    ...events.resets,
-    ...cssStates.resets,
-    ...methods.resets,
-  };
+  const combined: ArgTypes = {};
+  Object.assign(
+    combined,
+    cssProps.resets || {},
+    cssParts.resets || {},
+    slots.resets || {},
+    attrsAndProps.resets || {},
+    events.resets || {},
+    cssStates.resets || {},
+    methods.resets || {},
+  );
 
   (getCategoriesOrder() as Array<Exclude<Categories, "attributes">>)?.forEach(
     (category) => {
       if (excludeCategories?.includes(category)) return;
-      argTypes = { ...argTypes, ...(args[category] || {}) };
+      Object.assign(combined, args[category] || {});
     },
   );
 
-  return sortByCategories(argTypes, {...args, attributes: {}});
+  return sortByCategories(combined, { ...args, attributes: {} });
 }
 
 /**
@@ -275,11 +273,10 @@ function getReactArgs(component?: Component): Record<string, any> {
  */
 function getCategoriesOrder(): Array<Categories> {
   const configuredOrder = userOptions.categoryOrder || [];
-   return [
-      ...configuredOrder,
-      ...defaultOptions.categoryOrder!
-          .filter(category => !configuredOrder.includes(category))
-    ]
+  return [
+    ...configuredOrder,
+    ...defaultOptions.categoryOrder!.filter((category) => !configuredOrder.includes(category)),
+  ];
 }
 
 /**
@@ -292,12 +289,12 @@ function sortByCategories(argTypes: ArgTypes, args: Record<Categories, ArgTypes>
   const sortedArgTypes: ArgTypes = Object.assign({}, argTypes);
   getCategoriesOrder().forEach((category) => {
     // Force order by not using the Object.assign method
-    Object.keys(args[category]!).forEach(k => {
+    Object.keys(args[category] || {}).forEach((k) => {
       if (argTypes[k]) {
         delete sortedArgTypes[k];
         sortedArgTypes[k] = argTypes[k];
       }
-    })
+    });
   });
   return sortedArgTypes;
 }
