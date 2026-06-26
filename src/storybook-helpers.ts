@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult } from "lit";
+import { TemplateResult, html } from "lit";
 import { getStyleTemplate, getTemplate, logEvent } from "./html-templates.js";
 import {
   getCssParts,
@@ -92,6 +92,40 @@ export function getStorybookHelpers<T>(
   };
 
   return helpers;
+}
+
+function slugify(s = "") {
+  return String(s)
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
+}
+
+/**
+ * Decorator to scope CSS custom properties to a story using the story name.
+ * Usage: decorators: [scopedStylesDecorator('sb-story')]
+ */
+export function scopedStylesDecorator(prefix = "sb-story") {
+  return (Story: any, context: any) => {
+    const slug = slugify(context?.name || context?.title || "story");
+    const wrapper = document.createElement("div");
+    wrapper.className = `${prefix}-${slug}`;
+
+    const result = Story();
+    if (result instanceof Node) {
+      wrapper.appendChild(result);
+      return wrapper;
+    }
+
+    // If Story returns a TemplateResult (lit), wrap using lit's html helper
+    try {
+      return html`<div class="${prefix}-${slug}">${result}</div>`;
+    } catch {
+      // Fallback: return wrapper (storybook may render into it in some frameworks)
+      return wrapper;
+    }
+  };
 }
 
 function getManifest(): Package {

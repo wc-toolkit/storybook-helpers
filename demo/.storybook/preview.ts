@@ -1,7 +1,7 @@
 import type { Preview } from "@storybook/web-components-vite";
 import { setCustomElementsManifest } from "@storybook/web-components-vite";
 import customElements from "../custom-elements.json" with { type: "json" };
-import { setStorybookHelpersConfig } from "../../src/index.js";
+import { setStorybookHelpersConfig, scopedStylesDecorator } from "../../src/index.js";
 
 setStorybookHelpersConfig({
   /** hides the `arg ref` label on each control */
@@ -37,6 +37,8 @@ const preview: Preview = {
       },
     },
   },
+  // Example: scope CSS variables per-story using the story name
+  decorators: [scopedStylesDecorator('sb-story')],
 };
 
 export default preview;

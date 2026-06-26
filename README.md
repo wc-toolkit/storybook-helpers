@@ -205,6 +205,39 @@ export const CustomStyling: Story = {
 };
 ```
 
+### Scoping CSS to a story (no inline styles)
+
+Some components have many CSS custom properties. To avoid setting them as inline args for each story, use the included scopedStylesDecorator which generates a wrapper class from the story name and lets you set CSS variables in a stylesheet.
+
+Add the decorator to your Storybook preview (example shows the demo preview):
+
+```ts
+// .storybook/preview.ts
+import { scopedStylesDecorator } from "@wc-toolkit/storybook-helpers";
+
+export const decorators = [scopedStylesDecorator("sb-story")];
+
+// The decorator uses the story name (slugified) to generate a class like:
+// .sb-story-my-story
+```
+
+Then add a global stylesheet (imported by preview) with rules targeting the generated class:
+
+```css
+/* .storybook/story-scopes.css */
+.sb-story-my-story {
+  --card-border-color: #ff0000;
+  --card-border-radius: 12px;
+}
+```
+
+Notes:
+
+- The decorator slugifies the story name: lowercased, spaces → `-`, non-word chars removed.
+- Because CSS custom properties cascade, setting them on the wrapper class scopes them to the story without inline styles.
+- You can still use args to override any value per-story when needed.
+
+
 ### Using CSS Shadow Parts
 
 CSS shadow parts allow styling internal elements from outside:
