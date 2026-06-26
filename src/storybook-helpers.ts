@@ -284,11 +284,6 @@ function getReactProps(
   const events = getReactEvents(component);
   const cssStates = getCssStates(component);
   const methods = getMethods(component);
-  const options: StorybookHelpersOptions = {
-    ...defaultOptions,
-    ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
-  };
-
   const args: Record<Exclude<Categories, "attributes">, ArgTypes> = {
     cssParts: cssParts.args,
     cssProps: cssProps.args,
