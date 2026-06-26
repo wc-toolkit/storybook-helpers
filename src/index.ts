@@ -2,5 +2,5 @@ export {
   getStorybookHelpers,
   setStorybookHelpersConfig,
 } from "./storybook-helpers.js";
-export { storybookHelpersPreset } from "./preset.js";
+export { storybookHelpersReloader } from "./reloader.js";
 export type * from "./types.js";
