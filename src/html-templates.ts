@@ -93,21 +93,12 @@ export function getStyleTemplate(
     .filter((x) => x.length)
     .join("\n\n");
 
-  if (`${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(/\s+/g, "") === "") {
-    return "";
-  }
-
-  // If configured, wrap the generated rules in @scope for the component selector
-  let finalTemplate = template;
-  if (options.useScopedStyles && component?.tagName) {
-    const selector = component.tagName;
-    finalTemplate = `@scope (${selector}) {\n${template
-      .split("\n")
-      .map((l) => `  ${l}`)
-      .join("\n")}\n}`;
-  }
-
-  return (unsafeHTML(`<style>\n${finalTemplate}\n</style>`) as TemplateResult);
+  return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
+    /\s+/g,
+    "",
+  ) !== ""
+    ? (unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult)
+    : "";
 }
 
 export function logEvent(name: string, event: Event) {
