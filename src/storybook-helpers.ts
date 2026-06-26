@@ -22,8 +22,6 @@ import type {
 } from "./types.js";
 import type { Package } from "custom-elements-manifest";
 
-let userOptions: StorybookHelpersOptions =
-  (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 const defaultOptions: StorybookHelpersOptions = {
   typeRef: "parsedType",
   categoryOrder: [
@@ -36,6 +34,11 @@ const defaultOptions: StorybookHelpersOptions = {
     "methods",
     "events",
   ],
+};
+
+let userOptions: StorybookHelpersOptions = {
+  ...defaultOptions,
+  ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
 };
 
 /**
@@ -57,7 +60,7 @@ export function getStorybookHelpers<T>(
   tagName: string,
   options?: StoryOptions
 ): StoryHelpers<T> {
-  userOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+  userOptions = { ...defaultOptions, ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}) };
   const cem = getManifest();
   const component = getComponent(cem, tagName);
   const eventNames = component?.events?.map((event) => event.name) || [];
@@ -207,7 +210,7 @@ function getReactProps(
   const cssStates = getCssStates(component);
   const methods = getMethods(component);
   const options: StorybookHelpersOptions =
-    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+    { ...defaultOptions, ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}) };
 
   const args: Record<Exclude<Categories, "attributes">, ArgTypes> = {
     cssParts: cssParts.args,
