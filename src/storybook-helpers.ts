@@ -127,7 +127,9 @@ export function scopedStylesDecorator(prefix = "sb-story") {
       // Use Lit's render to produce real DOM inside the wrapper — preserves structure/indentation
       render(result as any, wrapper);
 
-      // Normalize rendered nodes and append with a single newline + indent
+      // Normalize rendered nodes and build a formatted HTML string so
+      // Storybook Docs shows the opening tag, children, and closing tag
+      // on their own lines with consistent indentation.
       const indent = "  ";
       const rawNodes = Array.from(wrapper.childNodes);
 
@@ -137,33 +139,35 @@ export function scopedStylesDecorator(prefix = "sb-story") {
         (n.nodeType === Node.TEXT_NODE && n.textContent && n.textContent.trim() !== "")
       );
 
-      // Move children into an empty wrapper with controlled newlines/indent
-      wrapper.innerHTML = "";
-
+      // Build a formatted HTML string
+      let html = "\n";
       nodes.forEach((node) => {
-        // Normalize <style> and <script> contents: trim leading/trailing blank lines and indent inner lines
         if (node.nodeType === Node.ELEMENT_NODE) {
-          const tag = (node as Element).tagName.toLowerCase();
-          if ((tag === "style" || tag === "script") && (node as Element).textContent) {
-            const el = node as Element & { textContent: string };
-            const lines = el.textContent
-              .replace(/\r/g, "")
-              .split("\n")
-              .map((l) => l.replace(/\s+$/, ""));
-            // strip leading/trailing empty lines
-            while (lines.length && lines[0].trim() === "") lines.shift();
-            while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
-            el.textContent = lines.map((l) => (l ? indent + l : l)).join("\n");
-          }
-        }
+          const el = node as Element;
+          const tag = el.tagName.toLowerCase();
 
-        wrapper.appendChild(document.createTextNode("\n" + indent));
-        wrapper.appendChild(node);
+          if (tag === "style" || tag === "script") {
+            // Normalize inner text lines
+            const content = (el.textContent || "").replace(/\r/g, "").split("\n").map(l => l.trim()).filter(l => l !== "");
+            html += `  <${tag}>\n`;
+            if (content.length) {
+              html += content.map(l => `${indent}${l}`).join("\n") + "\n";
+            }
+            html += `  </${tag}>\n`;
+          } else {
+            // Put the element's outerHTML on its own indented line
+            html += `  ${el.outerHTML}\n`;
+          }
+        } else if (node.nodeType === Node.TEXT_NODE) {
+          const text = (node.textContent || "").trim();
+          if (text) html += `  ${text}\n`;
+        }
       });
 
-      // Close with a newline so the closing tag sits on its own line
-      wrapper.appendChild(document.createTextNode("\n"));
+      // Final newline so the closing wrapper appears on its own line
+      html += "\n";
 
+      wrapper.innerHTML = html;
       return wrapper;
     } catch {
       // Fallback: try wrapping as a TemplateResult (some frameworks prefer this)
