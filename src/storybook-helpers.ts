@@ -42,7 +42,7 @@ const defaultOptions: StorybookHelpersOptions = {
  * sets the global config for the Storybook helpers
  * @param options
  */
-export function setStorybookHelpersConfig(options: StorybookHelpersOptions) {
+export function setStorybookHelpersConfig(options: StorybookHelpersOptions = {}) {
   options = { ...defaultOptions, ...options };
   (globalThis as any).__WC_STORYBOOK_HELPERS_CONFIG__ = options;
   userOptions = options;
