@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult, html } from "lit";
+import { TemplateResult, html, render } from "lit";
 import { getStyleTemplate, getTemplate, logEvent } from "./html-templates.js";
 import {
   getCssParts,
@@ -113,17 +113,28 @@ export function scopedStylesDecorator(prefix = "sb-story") {
     wrapper.className = `${prefix}-${slug}`;
 
     const result = Story();
+
+    // If Story returned a DOM Node, just append it
     if (result instanceof Node) {
       wrapper.appendChild(result);
       return wrapper;
     }
 
-    // If Story returns a TemplateResult (lit), wrap using lit's html helper
+    // If Story returns a lit TemplateResult or string, render it into the wrapper
     try {
-      return html`<div class="${prefix}-${slug}">${result}</div>`;
-    } catch {
-      // Fallback: return wrapper (storybook may render into it in some frameworks)
+      // Clear any existing content (defensive)
+      wrapper.innerHTML = "";
+      // Use Lit's render to produce real DOM inside the wrapper — preserves structure/indentation
+      render(result as any, wrapper);
       return wrapper;
+    } catch {
+      // Fallback: try wrapping as a TemplateResult (some frameworks prefer this)
+      try {
+        return html`<div class="${prefix}-${slug}">${result}</div>`;
+      } catch {
+        // Final fallback: return wrapper
+        return wrapper;
+      }
     }
   };
 }
