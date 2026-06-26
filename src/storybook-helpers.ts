@@ -126,6 +126,31 @@ export function scopedStylesDecorator(prefix = "sb-story") {
       wrapper.innerHTML = "";
       // Use Lit's render to produce real DOM inside the wrapper — preserves structure/indentation
       render(result as any, wrapper);
+
+      // Insert newline and indentation text nodes so Storybook Docs serializes
+      // the markup with a newline after the opening tag and indented children.
+      const indent = "  ";
+      const nodes = Array.from(wrapper.childNodes);
+      // Move children into the wrapper with indentation
+      wrapper.innerHTML = "";
+      wrapper.appendChild(document.createTextNode("\n"));
+      nodes.forEach((node) => {
+        // If it's a <style> element, indent its internal lines for readability
+        if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName.toLowerCase() === "style") {
+          const styleEl = node as HTMLStyleElement;
+          if (styleEl.textContent) {
+            styleEl.textContent = styleEl.textContent
+              .split("\n")
+              .map((line) => (line ? indent + line : line))
+              .join("\n");
+          }
+        }
+
+        wrapper.appendChild(document.createTextNode(indent));
+        wrapper.appendChild(node);
+        wrapper.appendChild(document.createTextNode("\n"));
+      });
+
       return wrapper;
     } catch {
       // Fallback: try wrapping as a TemplateResult (some frameworks prefer this)
