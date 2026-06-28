@@ -205,38 +205,39 @@ export const CustomStyling: Story = {
 };
 ```
 
-### Scoping CSS to a story (no inline styles)
+### Scoping CSS to a story (per-story, scoped styles)
 
-Some components have many CSS custom properties. To avoid setting them as inline args for each story, use the included scopedStylesDecorator which generates a wrapper class from the story name and lets you set CSS variables in a stylesheet.
+Some components expose many CSS custom properties. Enable `useScopedStyles` to have helpers generate scoped CSS blocks instead of inline style args. When enabled, helpers:
 
-Add the decorator to your Storybook preview (example shows the demo preview):
+- Add a per-story attribute (data-story="scope-1", scope-2, ... ) to the rendered element
+- Rewrite generated selectors so they target `:scope` inside the component
+- Wrap the rules in an `@scope (selector) { ... }` block (the selector is parenthesized as required)
+- Indent the contents by two spaces for readability
+
+Enable it in `.storybook/preview.ts`:
 
 ```ts
-// .storybook/preview.ts
-import { scopedStylesDecorator } from "@wc-toolkit/storybook-helpers";
-
-export const decorators = [scopedStylesDecorator("sb-story")];
-
-// The decorator uses the story name (slugified) to generate a class like:
-// .sb-story-my-story
+import { setStorybookHelpersConfig } from "@wc-toolkit/storybook-helpers";
+setStorybookHelpersConfig({ useScopedStyles: true });
 ```
 
-Then add a global stylesheet (imported by preview) with rules targeting the generated class:
+Example emitted CSS (simplified):
 
 ```css
-/* .storybook/story-scopes.css */
-.sb-story-my-story {
-  --card-border-color: #ff0000;
-  --card-border-radius: 12px;
+@scope (my-element[data-story="scope-1"]) {
+  :scope {
+    --card-border-color: #ff0000;
+    --card-border-radius: 12px;
+  }
 }
 ```
 
-Notes:
+Behavior notes:
 
-- The decorator slugifies the story name: lowercased, spaces → `-`, non-word chars removed.
-- Because CSS custom properties cascade, setting them on the wrapper class scopes them to the story without inline styles.
-- You can still use args to override any value per-story when needed.
-
+- Styles are injected per-story and removed when the story unmounts; this avoids leaking to other stories.
+- The helpers add a short `data-story` id (scope-1, scope-2, ...) instead of long random strings.
+- The MutationObserver used to sync controls ignores unknown attributes and skips updates while the helpers are updating, preventing render loops when the data attribute is added.
+- Browser support for `@scope` is limited; use a build-time transform (PostCSS) if you need broader compatibility.
 
 ### Using CSS Shadow Parts
 
