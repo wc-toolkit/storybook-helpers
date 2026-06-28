@@ -432,6 +432,10 @@ function syncControls(component: Component) {
  * @param component component object from the Custom Elements Manifest
  */
 function setArgObserver(component: Component) {
+  if(options.disableArgObserver) {
+    return;
+  }
+
   let isUpdating = false;
   const updateArgs = useArgs()[1];
   const { attrArgs: attributes } = getAttributesAndProperties(component);

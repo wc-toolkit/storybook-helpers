@@ -25,6 +25,8 @@ export type StorybookHelpersOptions = {
   useScopedStyles?: boolean;
   /** Category order */
   categoryOrder?: Array<Categories>;
+  /** Disables the MutationObserver that syncs component attributes and properties with Storybook controls */
+  disableArgObserver?: boolean;
 };
 
 /** @deprecated Use StorybookHelpersOptions instead */
