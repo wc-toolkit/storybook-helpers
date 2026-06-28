@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult, html, render } from "lit";
+import { TemplateResult } from "lit";
 import { getStyleTemplate, getTemplate, logEvent } from "./html-templates.js";
 import {
   getCssParts,
@@ -24,6 +24,7 @@ import type { Package } from "custom-elements-manifest";
 
 const defaultOptions: StorybookHelpersOptions = {
   typeRef: "parsedType",
+  useScopedStyles: false,
   categoryOrder: [
     "attributes",
     "properties",
@@ -33,7 +34,7 @@ const defaultOptions: StorybookHelpersOptions = {
     "cssStates",
     "methods",
     "events",
-  ],
+  ]
 };
 
 let userOptions: StorybookHelpersOptions = {
@@ -92,55 +93,6 @@ export function getStorybookHelpers<T>(
   };
 
   return helpers;
-}
-
-function slugify(s = "") {
-  return String(s)
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "");
-}
-
-/**
- * Decorator to scope CSS custom properties to a story using the story name.
- * Usage: decorators: [scopedStylesDecorator('sb-story')]
- */
-export function scopedStylesDecorator(
-  prefix = "sb-story",
-  styles?: string | ((slug: string) => string),
-) {
-  return (Story: any, context: any) => {
-    const slug = slugify(context?.name || context?.title || "story");
-    const wrapper = document.createElement("div");
-    wrapper.className = `${prefix}-${slug}`;
-
-    // Inject <style> into wrapper (light DOM) if styles provided
-    if (styles) {
-      try {
-        const styleEl = document.createElement("style");
-        styleEl.textContent = typeof styles === "function" ? styles(slug) : styles;
-        wrapper.appendChild(styleEl);
-      } catch {
-        // ignore
-      }
-    }
-
-    const result = Story();
-
-    // Append rendered story content into wrapper. Keep markup intact so docs/source remains readable.
-    if (result instanceof Node) {
-      wrapper.appendChild(result);
-      return wrapper;
-    }
-
-    try {
-      render(result as any, wrapper);
-      return wrapper;
-    } catch {
-      return wrapper;
-    }
-  };
 }
 
 function getManifest(): Package {
