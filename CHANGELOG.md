@@ -1,5 +1,25 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.4.0
+
+### Minor Changes
+
+- ae1d98f: Add support for disabling the propagation of attribute changes to Storybook URL params
+
+## 10.3.2
+
+### Patch Changes
+
+- eb7968e: simplify category ordering
+- c0250c7: fixed categoryOrder support
+
+## 10.3.1
+
+### Patch Changes
+
+- e95769c: Add `storybookHelpersReloader` - an automatic Custom Elements Manifest watcher for Vite and a webpack file-watch fallback. Export a helper preset (storybookHelpersPreset) that augments Storybook's viteFinal and webpackFinal to watch the manifest and trigger reloads. Default enabled.
+- 900b4c8: Made `setStorybookHelpersConfig` options optional.
+
 ## 10.3.0
 
 ### Minor Changes
