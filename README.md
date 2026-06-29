@@ -67,7 +67,16 @@ Now that you have Storybook installed, you can install the helpers:
 npm i -D @wc-toolkit/storybook-helpers
 ```
 
-Next, if you have [global configurations](#global-configurations), set those in your Storybook config in the `.storybook/preview.ts` (or `.js`) file:
+Next, set the `setStorybookHelpersConfig` in the `.storybook/preview.ts` (or `.js`) file:
+
+```ts
+// preview.ts
+import { setStorybookHelpersConfig } from "@wc-toolkit/storybook-helpers";
+
+setStorybookHelpersConfig();
+```
+
+You can also pass in global configuration:
 
 ```ts
 // preview.ts
@@ -81,7 +90,8 @@ setStorybookHelpersConfig(options);
 ## Setup
 
 Import the storybook helpers into your story and get the appropriate helpers by passing your element's tag name into the Storybook helper function.
-the function will return the helper data you can assign to the Storybook `meta` object.
+
+The function will return the helper data you can assign to the Storybook `meta` object.
 
 ```ts
 // my-element.stories.ts
@@ -241,6 +251,43 @@ const { args, argTypes, template } = getStorybookHelpers<MyElement>(
 // component.someMethod()
 // component.someProperty = value
 ```
+
+## Automatic Custom Elements Manifest reload
+
+The helpers now include a reloader that watches your Custom Elements Manifest (custom-elements.json) and forces Storybook to reload the iframe when the manifest changes. This is enabled by default.
+
+Usage:
+
+- Add the preset to your Storybook main config (.storybook/main.ts or .storybook/main.js):
+
+```ts
+// .storybook/main.ts
+import { storybookHelpersReloader } from "@wc-toolkit/storybook-helpers";
+
+export default {
+  // ...other Storybook config
+  presets: [storybookHelpersReloader()],
+};
+```
+
+- To customize the manifest path or disable the feature (path-first API — recommended):
+
+```ts
+presets: [
+  // watches the file at the given path relative to your Storybook configDir
+  storybookHelpersReloader({
+    path: "../build/custom-elements.json",
+    enabled: true,
+  }),
+];
+```
+
+Behavior:
+
+- Vite: registers a Vite plugin that watches the manifest and issues a full-reload via the Vite server websocket when the file changes.
+- Webpack 5: adds the manifest to webpack's fileDependencies so the dev server will pick up changes and rebuild.
+
+If your Storybook uses a non-standard config directory, the preset resolves the manifest relative to Storybook's configDir by default.
 
 ## Troubleshooting
 

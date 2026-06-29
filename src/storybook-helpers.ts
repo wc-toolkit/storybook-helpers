@@ -22,8 +22,6 @@ import type {
 } from "./types.js";
 import type { Package } from "custom-elements-manifest";
 
-let userOptions: StorybookHelpersOptions =
-  (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 const defaultOptions: StorybookHelpersOptions = {
   typeRef: "parsedType",
   categoryOrder: [
@@ -38,11 +36,18 @@ const defaultOptions: StorybookHelpersOptions = {
   ],
 };
 
+let userOptions: StorybookHelpersOptions = {
+  ...defaultOptions,
+  ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
+};
+
 /**
  * sets the global config for the Storybook helpers
  * @param options
  */
-export function setStorybookHelpersConfig(options: StorybookHelpersOptions) {
+export function setStorybookHelpersConfig(
+  options: StorybookHelpersOptions = {},
+) {
   options = { ...defaultOptions, ...options };
   (globalThis as any).__WC_STORYBOOK_HELPERS_CONFIG__ = options;
   userOptions = options;
@@ -57,7 +62,10 @@ export function getStorybookHelpers<T>(
   tagName: string,
   options?: StoryOptions,
 ): StoryHelpers<T> {
-  userOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+  userOptions = {
+    ...defaultOptions,
+    ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
+  };
   const cem = getManifest();
   const component = getComponent(cem, tagName);
   const eventNames = component?.events?.map((event) => event.name) || [];
@@ -136,26 +144,26 @@ function getArgTypes(
     slots: slots.args,
   };
 
-  const argTypes: ArgTypes = {};
-
-  // Combine all resets
+  // Combine all resets so they appear first
+  const combined: ArgTypes = {};
   Object.assign(
-    argTypes,
-    cssProps.resets,
-    cssParts.resets,
-    slots.resets,
-    attrsAndProps.resets,
-    events.resets,
-    cssStates.resets,
-    methods.resets,
+    combined,
+    cssProps.resets || {},
+    cssParts.resets || {},
+    slots.resets || {},
+    attrsAndProps.resets || {},
+    events.resets || {},
+    cssStates.resets || {},
+    methods.resets || {},
   );
 
-  userOptions.categoryOrder?.forEach((category) => {
+  // Merge categories in configured order
+  getCategoriesOrder().forEach((category) => {
     if (excludeCategories?.includes(category)) return;
-    Object.assign(argTypes, args[category]);
+    Object.assign(combined, args[category] || {});
   });
 
-  return argTypes;
+  return sortByCategories(combined, args);
 }
 
 /**
@@ -206,8 +214,6 @@ function getReactProps(
   const events = getReactEvents(component);
   const cssStates = getCssStates(component);
   const methods = getMethods(component);
-  const options: StorybookHelpersOptions =
-    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 
   const args: Record<Exclude<Categories, "attributes">, ArgTypes> = {
     cssParts: cssParts.args,
@@ -219,24 +225,26 @@ function getReactProps(
     slots: slots.args,
   };
 
-  let argTypes: ArgTypes = {
-    ...cssProps.resets,
-    ...cssParts.resets,
-    ...slots.resets,
-    ...attrsAndProps.resets,
-    ...events.resets,
-    ...cssStates.resets,
-    ...methods.resets,
-  };
+  const combined: ArgTypes = {};
+  Object.assign(
+    combined,
+    cssProps.resets || {},
+    cssParts.resets || {},
+    slots.resets || {},
+    attrsAndProps.resets || {},
+    events.resets || {},
+    cssStates.resets || {},
+    methods.resets || {},
+  );
 
-  (options.categoryOrder as Array<Exclude<Categories, "attributes">>)?.forEach(
-    (category: Exclude<Categories, "attributes">) => {
+  (getCategoriesOrder() as Array<Exclude<Categories, "attributes">>)?.forEach(
+    (category) => {
       if (excludeCategories?.includes(category)) return;
-      argTypes = { ...argTypes, ...(args[category] || {}) };
+      Object.assign(combined, args[category] || {});
     },
   );
 
-  return argTypes;
+  return sortByCategories(combined, { ...args, attributes: {} });
 }
 
 /**
@@ -256,4 +264,37 @@ function getReactArgs(component?: Component): Record<string, any> {
     .reduce((acc, value) => ({ ...acc, ...value }), {});
 
   return { ...args, ...events };
+}
+
+/**
+ * Compute the order of categories by mixing the default order and the order
+ * configured by the user
+ * @returns an array of Categories
+ */
+function getCategoriesOrder(): Array<Categories> {
+  const configuredOrder = userOptions.categoryOrder || [];
+  return [
+    ...configuredOrder,
+    ...defaultOptions.categoryOrder!.filter((category) => !configuredOrder.includes(category)),
+  ];
+}
+
+/**
+ * Sorts the entries of the given ArgTypes using the configured categories order
+ * @param argTypes the object to sort
+ * @param args the dictionary of arguments by category
+ * @returns a copy of the `argTypes` with entries `sorted`
+ */
+function sortByCategories(argTypes: ArgTypes, args: Record<Categories, ArgTypes>): ArgTypes {
+  const sortedArgTypes: ArgTypes = Object.assign({}, argTypes);
+  getCategoriesOrder().forEach((category) => {
+    // Force order by not using the Object.assign method
+    Object.keys(args[category] || {}).forEach((k) => {
+      if (argTypes[k]) {
+        delete sortedArgTypes[k];
+        sortedArgTypes[k] = argTypes[k];
+      }
+    });
+  });
+  return sortedArgTypes;
 }
