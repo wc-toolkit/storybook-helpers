@@ -276,7 +276,9 @@ function getCategoriesOrder(): Array<Categories> {
   const configuredOrder = userOptions.categoryOrder || [];
   return [
     ...configuredOrder,
-    ...defaultOptions.categoryOrder!.filter((category) => !configuredOrder.includes(category)),
+    ...defaultOptions.categoryOrder!.filter(
+      (category) => !configuredOrder.includes(category),
+    ),
   ];
 }
 
@@ -286,7 +288,10 @@ function getCategoriesOrder(): Array<Categories> {
  * @param args the dictionary of arguments by category
  * @returns a copy of the `argTypes` with entries `sorted`
  */
-function sortByCategories(argTypes: ArgTypes, args: Record<Categories, ArgTypes>): ArgTypes {
+function sortByCategories(
+  argTypes: ArgTypes,
+  args: Record<Categories, ArgTypes>,
+): ArgTypes {
   const sortedArgTypes: ArgTypes = Object.assign({}, argTypes);
   getCategoriesOrder().forEach((category) => {
     // Force order by not using the Object.assign method

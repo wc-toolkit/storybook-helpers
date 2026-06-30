@@ -432,7 +432,7 @@ function syncControls(component: Component) {
  * @param component component object from the Custom Elements Manifest
  */
 function setArgObserver(component: Component) {
-  if(options.disableArgObserver) {
+  if (options.disableArgObserver) {
     return;
   }
 

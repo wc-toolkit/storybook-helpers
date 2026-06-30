@@ -20,9 +20,9 @@ setStorybookHelpersConfig({
     "cssStates",
     "properties",
     "events",
-    "methods"
+    "methods",
   ],
-  useScopedStyles: true,
+  useScopedStyles: true,,
 });
 
 setCustomElementsManifest(customElements);
