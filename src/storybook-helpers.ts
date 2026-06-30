@@ -24,6 +24,7 @@ import type { Package } from "custom-elements-manifest";
 
 const defaultOptions: StorybookHelpersOptions = {
   typeRef: "parsedType",
+  useScopedStyles: false,
   categoryOrder: [
     "attributes",
     "properties",
