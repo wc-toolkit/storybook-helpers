@@ -19,10 +19,54 @@ import { action } from "storybook/actions";
 let argObserver: MutationObserver | undefined;
 let lastTagName: string | undefined;
 let options: StorybookHelpersOptions = {};
+let storyCounter = 0;
 
 setTimeout(() => {
   options = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 });
+
+/**
+ * Transform a generated CSS template so it targets the host instance via :scope
+ * and wraps the rules in a CSS @scope block for the given tag.
+ * This is exported for unit testing.
+ */
+export function transformToScoped(template: string, tagSelector: string) {
+  if (!template || !tagSelector) return template;
+
+  const baseTag = tagSelector.split("[")[0];
+
+  // escape regex helper
+  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+
+  let styleContent = template;
+
+  // Handle ::part and :state first using base tag
+  styleContent = styleContent.replace(
+    new RegExp(`${escapeRegExp(baseTag)}::part\\(`, "g"),
+    ":scope::part(",
+  );
+  styleContent = styleContent.replace(
+    new RegExp(`${escapeRegExp(baseTag)}:state\\(`, "g"),
+    ":scope:state(",
+  );
+
+  // Replace occurrences of the base tag used as the root selector at the start of a rule
+  styleContent = styleContent.replace(
+    new RegExp(
+      `(^|\\n)\\s*${escapeRegExp(baseTag)}(?=\\s*\\{|\\s|:|\\.|\\[|,|>|\\+|~)`,
+      "g",
+    ),
+    "$1:scope",
+  );
+
+  // As a fallback, replace any remaining standalone baseTag occurrences with :scope
+  styleContent = styleContent.replace(
+    new RegExp(escapeRegExp(baseTag), "g"),
+    ":scope",
+  );
+
+  return `@scope (${tagSelector}) {\n  ${styleContent}\n}`;
+}
 
 /**
  * Gets the template used to render the component in Storybook
@@ -49,13 +93,29 @@ export function getTemplate(
     lastTagName = component?.tagName;
   }
 
-  const { attrOperators, propOperators, additionalAttrs } =
-    getTemplateOperators(component!, args, argTypes);
+  const ops = getTemplateOperators(component!, args, argTypes);
+  const { attrOperators, propOperators } = ops;
+  const additionalAttrs = { ...(ops.additionalAttrs || {}) };
+
+  let scopeSelector: string | undefined;
+  if ((options as any)?.useScopedStyles && component?.tagName) {
+    // generate a stable-ish id for this render to scope styles to this instance
+    const storyId = `scope-${++storyCounter}`;
+    additionalAttrs["data-story"] = storyId;
+    scopeSelector = `${component.tagName}[data-story="${storyId}"]`;
+  }
+
   const operators = { ...attrOperators, ...propOperators, ...additionalAttrs };
   const slotsTemplate = getSlotsTemplate(component!, args, excludeCategories);
+  const styleTemplate = getStyleTemplate(
+    component!,
+    args,
+    excludeCategories,
+    scopeSelector,
+  );
   syncControls(component!);
 
-  return html`${getStyleTemplate(component, args, excludeCategories)}
+  return html`${styleTemplate}
 <${unsafeStatic(component!.tagName!)} ${spread(operators)}>${slotsTemplate}${slot || ""}</${unsafeStatic(component!.tagName!)}>
 ${
   options.setComponentVariable || setComponentVariable
@@ -79,6 +139,7 @@ export function getStyleTemplate(
   component?: Component,
   args?: any,
   excludeCategories?: Categories[],
+  scopeSelector?: string,
 ) {
   const cssPropertiesTemplate = excludeCategory("cssProps", excludeCategories)
     ? ""
@@ -93,12 +154,22 @@ export function getStyleTemplate(
     .filter((x) => x.length)
     .join("\n\n");
 
-  return `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
-    /\s+/g,
-    "",
-  ) !== ""
-    ? (unsafeHTML(`<style>\n${template}\n</style>`) as TemplateResult)
-    : "";
+  const hasStyles =
+    `${cssPropertiesTemplate}${cssPartsTemplate}${cssStatesTemplate}`.replace(
+      /\s+/g,
+      "",
+    ) !== "";
+
+  if (!hasStyles) return "";
+
+  let styleContent = template;
+
+  if ((options as any)?.useScopedStyles && component?.tagName) {
+    const selector = scopeSelector || component.tagName;
+    styleContent = transformToScoped(styleContent, selector);
+  }
+
+  return unsafeHTML(`<style>\n${styleContent}\n</style>`) as TemplateResult;
 }
 
 export function logEvent(name: string, event: Event) {
@@ -380,12 +451,20 @@ function setArgObserver(component: Component) {
 
   argObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
+      // Prevent reacting to attribute changes we caused while updating args
+      if (isUpdating) return;
+
+      // Only sync attributes that are known from the component metadata
+      const attribute = attributes[`${mutation.attributeName}`];
+      if (!attribute) return;
+
+      // Special-case: if class changed and we're in the middle of updating, skip
       if (mutation.attributeName === "class" && isUpdating) {
         return;
       }
 
       isUpdating = true;
-      const attribute = attributes[`${mutation.attributeName}`];
+
       if (
         attribute?.control === "boolean" ||
         (attribute?.control as any)?.type === "boolean"

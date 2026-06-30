@@ -1,0 +1,18 @@
+/* Demo story-scoped styles using native CSS nesting.
+   Note: native CSS nesting may require a PostCSS plugin or modern browser support.
+   These rules are indented using two spaces as requested. */
+
+.sb-story-default {
+  my-element {
+    --card-border-color: #e30b0b;
+    --card-border-radius: 12px;
+  }
+}
+
+/* Example for a named story (slugify your story title to match) */
+.sb-story-my-story {
+  my-element {
+    --card-border-color: #007acc;
+    --card-padding: 8px;
+  }
+}

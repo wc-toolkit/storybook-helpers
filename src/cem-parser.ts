@@ -15,7 +15,7 @@ type ArgSet = {
   args: ArgTypes;
 };
 
-type Control = ArgTypes[string]["control"];
+type StorybookControl = ArgTypes[string]["control"];
 
 let helpersOptions: StorybookHelpersOptions = {};
 
@@ -66,7 +66,10 @@ export function getAttributesAndProperties(
       ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
-    const { control, options } = getControl(propType, attribute !== undefined);
+    const { control, options, type: sbType } = getControl(
+      propType,
+      attribute !== undefined,
+    );
     const defaultValue = member.readonly
       ? undefined
       : getDefaultValue(control, member.default);
@@ -90,6 +93,7 @@ export function getAttributesAndProperties(
           summary: type,
         },
       },
+      type: sbType,
     };
   });
 
@@ -128,7 +132,7 @@ export function getReactProperties(
       : member?.type?.text;
     const propType = cleanUpType(type);
     const propName = `${member.name}`;
-    const { control, options } = getControl(propType);
+    const { control, options, type: sbType } = getControl(propType);
     const defaultValue = member.readonly
       ? undefined
       : getDefaultValue(control, member.default);
@@ -148,6 +152,7 @@ export function getReactProperties(
           summary: type,
         },
       },
+      type: sbType,
     };
   });
 
@@ -206,7 +211,7 @@ export function getCssProperties(
   return { resets, args };
 }
 
-function getCssPropControl(property: CssCustomProperty): Control | undefined {
+function getCssPropControl(property: CssCustomProperty): StorybookControl | undefined {
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
   if (
@@ -361,7 +366,7 @@ export function getMethods(component?: Component): ArgSet {
   return { args };
 }
 
-function getDefaultValue(control: Control, defaultValue?: string) {
+function getDefaultValue(control: StorybookControl, defaultValue?: string) {
   const initialValue = removeQuotes(defaultValue || "");
   const controlType =
     typeof control === "string"
@@ -386,9 +391,13 @@ function getDefaultValue(control: Control, defaultValue?: string) {
 function getControl(
   type: string,
   isAttribute = false,
-): { control: Control; options?: string[] } {
+): {
+  control: StorybookControl;
+  options?: string[];
+  type?: ArgTypes[string]["type"];
+} {
   if (!type) {
-    return { control: "text" };
+    return { control: "text", type: { name: "string" } };
   }
 
   const arrayInner = parseArrayType(type);
@@ -396,31 +405,66 @@ function getControl(
   const options = arrayInner ? parseOptions(arrayInner) : parseOptions(type);
 
   if (!arrayInner && isObject(type) && !isAttribute) {
-    return { control: "object" };
+    return { control: "object", type: getObjectSBType(type) };
   }
 
   // For primitive types, if the type is an array, we must offer an object control so the user can construct their own array of primitives
   if (hasType(options, "string")) {
-    return { control: arrayInner ? "object" : "text" };
+    return arrayInner
+      ? { control: "object", type: arrayOf("string") }
+      : { control: "text", type: { name: "string" } };
   }
 
   if (hasType(options, "boolean")) {
-    return { control: arrayInner ? "object" : "boolean" };
+    return arrayInner
+      ? { control: "object", type: arrayOf("boolean") }
+      : { control: "boolean", type: { name: "boolean" } };
   }
 
   if (hasType(options, "number")) {
-    return { control: arrayInner ? "object" : "number" };
+    return arrayInner
+      ? { control: "object", type: arrayOf("number") }
+      : { control: "number", type: { name: "number" } };
   }
 
   if (hasType(options, "date")) {
-    return { control: arrayInner ? "object" : "date" };
+    // Storybook has no dedicated date type; dates are surfaced as strings.
+    return arrayInner
+      ? { control: "object", type: arrayOf("string") }
+      : { control: "date", type: { name: "string" } };
   }
 
   // base case, type is a union of literals
-  return {
-    control: arrayInner ? "multi-select" : "select",
-    options: options.map((option) => removeQuotes(option)),
-  };
+  const enumValues = options.map((option) => removeQuotes(option));
+  return arrayInner
+    ? {
+        control: "multi-select",
+        options: enumValues,
+        type: { name: "array", value: { name: "enum", value: enumValues } },
+      }
+    : {
+        control: "select",
+        options: enumValues,
+        type: { name: "enum", value: enumValues },
+      };
+}
+
+function arrayOf(scalar: 'string' | 'number' | 'boolean') {
+  return { name: "array" as const, value: { name: scalar } };
+}
+
+// matches -> string[] | number[] | boolean[]
+const primitiveArrayRegex = /^(string|number|boolean)\s*\[\]$/i;
+// matches -> Array<string> | Array<number> | Array<boolean>
+const primitiveArrayGenericRegex = /^Array<\s*(string|number|boolean)\s*>$/i;
+
+function getObjectSBType(type: string) {
+  const match =
+    type.match(primitiveArrayRegex) ?? type.match(primitiveArrayGenericRegex);
+  if (match) {
+    return arrayOf(match[1].toLowerCase() as "string" | "number" | "boolean");
+  }
+  return { name: "object" as const, value: {} };
 }
 
 // matches -> Array< union | of | types >

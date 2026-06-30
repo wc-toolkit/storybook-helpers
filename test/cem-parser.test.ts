@@ -437,3 +437,124 @@ describe("getSlots", () => {
     expect(args["icon-slot"]).toBeDefined();
   });
 });
+
+describe("getAttributesAndProperties — Storybook type inference", () => {
+  it("infers a string scalar type for string", () => {
+    const { attrArgs } = getAttributesAndProperties(attrComponent("string"));
+    expect(attrArgs[FIELD].type).toEqual({ name: "string" });
+  });
+
+  it("infers a boolean scalar type for boolean", () => {
+    const { attrArgs } = getAttributesAndProperties(attrComponent("boolean"));
+    expect(attrArgs[FIELD].type).toEqual({ name: "boolean" });
+  });
+
+  it("infers a number scalar type for number", () => {
+    const { attrArgs } = getAttributesAndProperties(attrComponent("number"));
+    expect(attrArgs[FIELD].type).toEqual({ name: "number" });
+  });
+
+  it("infers a string scalar type for Date", () => {
+    const { attrArgs } = getAttributesAndProperties(attrComponent("Date"));
+    expect(attrArgs[FIELD].type).toEqual({ name: "string" });
+  });
+
+  it("falls back to a string scalar type when no type is declared", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      makeComponent({
+        fields: [{ name: FIELD }],
+        attributes: [{ name: FIELD, fieldName: FIELD }],
+      }),
+    );
+    expect(attrArgs[FIELD].type).toEqual({ name: "string" });
+  });
+
+  it("infers an enum type carrying the literal options for a union", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      attrComponent("'small' | 'medium' | 'large'"),
+    );
+    expect(attrArgs[FIELD].type).toEqual({
+      name: "enum",
+      value: ["small", "medium", "large"],
+    });
+  });
+
+  it("infers an object type for object properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("{ foo: string }", { default: "{}" }),
+    );
+    expect(propArgs[FIELD].type).toEqual({ name: "object", value: {} });
+  });
+
+  it("infers an array-of-string type for `string[]` properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("string[]", { default: "[]" }),
+    );
+    expect(propArgs[FIELD].type).toEqual({
+      name: "array",
+      value: { name: "string" },
+    });
+  });
+
+  it("infers an array-of-number type for `Array<number>` properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("Array<number>", { default: "[]" }),
+    );
+    expect(propArgs[FIELD].type).toEqual({
+      name: "array",
+      value: { name: "number" },
+    });
+  });
+
+  it("infers an array-of-enum type for arrays of literal unions", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      attrComponent("Array<'a' | 'b' | 'c'>"),
+    );
+    expect(attrArgs[FIELD].type).toEqual({
+      name: "array",
+      value: { name: "enum", value: ["a", "b", "c"] },
+    });
+  });
+
+  it("infers an array-of-string type for `(string | ...)` style primitive arrays", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("number[]", { default: "[]" }),
+    );
+    expect(propArgs[FIELD].type).toEqual({
+      name: "array",
+      value: { name: "number" },
+    });
+  });
+});
+
+describe("getReactProperties — Storybook type inference", () => {
+  it("infers a string scalar type for string", () => {
+    const { args } = getReactProperties(propComponent("string"));
+    expect(args[FIELD].type).toEqual({ name: "string" });
+  });
+
+  it("infers an enum type for a union of string literals", () => {
+    const { args } = getReactProperties(propComponent("'a' | 'b' | 'c'"));
+    expect(args[FIELD].type).toEqual({
+      name: "enum",
+      value: ["a", "b", "c"],
+    });
+  });
+
+  it("infers an array-of-enum type for `Array<'a' | 'b'>`", () => {
+    const { args } = getReactProperties(
+      propComponent("Array<'a' | 'b'>", { default: "[]" }),
+    );
+    expect(args[FIELD].type).toEqual({
+      name: "array",
+      value: { name: "enum", value: ["a", "b"] },
+    });
+  });
+
+  it("infers an object type for `{ foo: string }`", () => {
+    const { args } = getReactProperties(
+      propComponent("{ foo: string }", { default: "{}" }),
+    );
+    expect(args[FIELD].type).toEqual({ name: "object", value: {} });
+  });
+});

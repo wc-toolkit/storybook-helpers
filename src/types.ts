@@ -21,6 +21,8 @@ export type StorybookHelpersOptions = {
   setComponentVariable?: boolean;
   /** renders default values for attributes and CSS properties */
   renderDefaultValues?: boolean;
+  /** Wrap generated CSS in a CSS `@scope` rule */
+  useScopedStyles?: boolean;
   /** Category order */
   categoryOrder?: Array<Categories>;
   /** Disables the MutationObserver that syncs component attributes and properties with Storybook controls */

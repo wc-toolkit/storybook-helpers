@@ -205,6 +205,40 @@ export const CustomStyling: Story = {
 };
 ```
 
+### Scoping CSS to a story (per-story, scoped styles)
+
+Some components expose many CSS custom properties. Enable `useScopedStyles` to have helpers generate scoped CSS blocks instead of inline style args. When enabled, helpers:
+
+- Add a per-story attribute (data-story="scope-1", scope-2, ... ) to the rendered element
+- Rewrite generated selectors so they target `:scope` inside the component
+- Wrap the rules in an `@scope (selector) { ... }` block (the selector is parenthesized as required)
+- Indent the contents by two spaces for readability
+
+Enable it in `.storybook/preview.ts`:
+
+```ts
+import { setStorybookHelpersConfig } from "@wc-toolkit/storybook-helpers";
+setStorybookHelpersConfig({ useScopedStyles: true });
+```
+
+Example emitted CSS (simplified):
+
+```css
+@scope (my-element[data-story="scope-1"]) {
+  :scope {
+    --card-border-color: #ff0000;
+    --card-border-radius: 12px;
+  }
+}
+```
+
+Behavior notes:
+
+- Styles are injected per-story and removed when the story unmounts; this avoids leaking to other stories.
+- The helpers add a short `data-story` id (scope-1, scope-2, ...) instead of long random strings.
+- The MutationObserver used to sync controls ignores unknown attributes and skips updates while the helpers are updating, preventing render loops when the data attribute is added.
+- Browser support for `@scope` is limited; use a build-time transform (PostCSS) if you need broader compatibility.
+
 ### Using CSS Shadow Parts
 
 CSS shadow parts allow styling internal elements from outside:

@@ -22,6 +22,7 @@ setStorybookHelpersConfig({
     "events",
     "methods",
   ],
+  useScopedStyles: true,
 });
 
 setCustomElementsManifest(customElements);
