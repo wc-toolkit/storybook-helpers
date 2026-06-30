@@ -1,5 +1,11 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.5.1
+
+### Patch Changes
+
+- f2b4942: Fix URL args being silently dropped when setCustomElementsManifest is active
+
 ## 10.5.0
 
 ### Minor Changes
