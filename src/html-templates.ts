@@ -107,7 +107,12 @@ export function getTemplate(
 
   const operators = { ...attrOperators, ...propOperators, ...additionalAttrs };
   const slotsTemplate = getSlotsTemplate(component!, args, excludeCategories);
-  const styleTemplate = getStyleTemplate(component!, args, excludeCategories, scopeSelector);
+  const styleTemplate = getStyleTemplate(
+    component!,
+    args,
+    excludeCategories,
+    scopeSelector,
+  );
   syncControls(component!);
 
   return html`${styleTemplate}

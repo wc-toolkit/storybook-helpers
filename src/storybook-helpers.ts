@@ -34,7 +34,7 @@ const defaultOptions: StorybookHelpersOptions = {
     "cssStates",
     "methods",
     "events",
-  ]
+  ],
 };
 
 let userOptions: StorybookHelpersOptions = {
