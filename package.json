@@ -21,6 +21,7 @@
     "deploy": "npm run build && npm publish",
     "dev": "concurrently -k -r \"npm run analyze:dev\" \"npm run storybook\"",
     "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run analyze && vitest --run --passWithNoTests",

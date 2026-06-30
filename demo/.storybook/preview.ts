@@ -20,8 +20,8 @@ setStorybookHelpersConfig({
     "cssStates",
     "properties",
     "events",
-    "methods"
-  ]
+    "methods",
+  ],
 });
 
 setCustomElementsManifest(customElements);
