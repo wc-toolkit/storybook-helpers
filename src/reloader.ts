@@ -1,5 +1,3 @@
-import path from "path";
-
 /*
  * storybookHelpersReloader
  * ------------------------
@@ -16,7 +14,8 @@ export interface CEMWatchOptions {
   enabled?: boolean;
 }
 
-function resolveManifestPath(configDir?: string, override?: string): string {
+async function resolveManifestPath(configDir?: string, override?: string): Promise<string> {
+  const path = await import("node:path");
   const base = configDir ? path.resolve(configDir) : process.cwd();
   return path.resolve(base, override || "custom-elements.json");
 }
@@ -91,14 +90,14 @@ class WatchCEMWebpackPlugin {
 export function storybookHelpersReloader(opts: CEMWatchOptions = {}) {
   const { path: overridePath, enabled = true } = opts;
 
-  function viteFinal(
+  async function viteFinal(
     existingConfig: Record<string, unknown> | unknown,
     { configDir }: { configDir?: string },
   ) {
     if (!enabled) {
       return existingConfig as unknown;
     }
-    const manifestPath = resolveManifestPath(configDir, overridePath);
+    const manifestPath = await resolveManifestPath(configDir, overridePath);
     const plugin = createViteCEMPlugin(manifestPath);
     const cfg = existingConfig as Record<string, unknown>;
     return {
@@ -107,14 +106,14 @@ export function storybookHelpersReloader(opts: CEMWatchOptions = {}) {
     };
   }
 
-  function webpackFinal(
+  async function webpackFinal(
     existingConfig: Record<string, unknown> | unknown,
     { configDir }: { configDir?: string },
   ) {
     if (!enabled) {
       return existingConfig as unknown;
     }
-    const manifestPath = resolveManifestPath(configDir, overridePath);
+    const manifestPath = await resolveManifestPath(configDir, overridePath);
     const pluginInstance = new WatchCEMWebpackPlugin(manifestPath);
     const cfg = existingConfig as Record<string, unknown>;
     return {
