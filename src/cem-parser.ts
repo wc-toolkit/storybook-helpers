@@ -78,11 +78,11 @@ export function getAttributesAndProperties(
 
     args[name] = {
       name: name,
-        description: getDescription(
-          (member as any).summary || member.description,
-          argRef,
-          member.deprecated as string,
-        ),
+      description: getDescription(
+        (member as any).summary || member.description,
+        argRef,
+        member.deprecated as string,
+      ),
       defaultValue,
       control: enabled && !member.readonly && control ? control : false,
       options,
