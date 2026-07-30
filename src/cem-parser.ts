@@ -66,10 +66,11 @@ export function getAttributesAndProperties(
       ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
-    const { control, options, type: sbType } = getControl(
-      propType,
-      attribute !== undefined,
-    );
+    const {
+      control,
+      options,
+      type: sbType,
+    } = getControl(propType, attribute !== undefined);
     const defaultValue = member.readonly
       ? undefined
       : getDefaultValue(control, member.default);
@@ -211,7 +212,9 @@ export function getCssProperties(
   return { resets, args };
 }
 
-function getCssPropControl(property: CssCustomProperty): StorybookControl | undefined {
+function getCssPropControl(
+  property: CssCustomProperty,
+): StorybookControl | undefined {
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
   if (
@@ -449,7 +452,7 @@ function getControl(
       };
 }
 
-function arrayOf(scalar: 'string' | 'number' | 'boolean') {
+function arrayOf(scalar: "string" | "number" | "boolean") {
   return { name: "array" as const, value: { name: scalar } };
 }
 
