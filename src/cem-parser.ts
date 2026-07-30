@@ -62,7 +62,7 @@ export function getAttributesAndProperties(
     }
 
     const name = attribute?.name || member.name;
-    const propName = attribute?.name !== member.name ? member.name : undefined;
+    const argRef = attribute?.name !== member.name ? member.name : undefined;
     const type = helpersOptions.typeRef
       ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
@@ -78,11 +78,11 @@ export function getAttributesAndProperties(
 
     args[name] = {
       name: name,
-      description: getDescription(
-        (member as any).summary || member.description,
-        propName,
-        member.deprecated as string,
-      ),
+        description: getDescription(
+          (member as any).summary || member.description,
+          argRef,
+          member.deprecated as string,
+        ),
       defaultValue,
       control: enabled && !member.readonly && control ? control : false,
       options,
