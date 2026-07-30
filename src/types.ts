@@ -27,6 +27,8 @@ export type StorybookHelpersOptions = {
   categoryOrder?: Array<Categories>;
   /** Disables the MutationObserver that syncs component attributes and properties with Storybook controls */
   disableArgObserver?: boolean;
+  /** When true, infers CSS custom property controls from their declared CEM type instead of the property name */
+  useCssPropTypes?: boolean;
 };
 
 /** @deprecated Use StorybookHelpersOptions instead */

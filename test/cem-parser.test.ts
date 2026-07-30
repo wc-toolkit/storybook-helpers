@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   getAttributesAndProperties,
   getCssParts,
@@ -405,6 +405,73 @@ describe("getCssProperties", () => {
       /* enabled */ false,
     );
     expect(args["--primary-color"].control).toBe(false);
+  });
+
+  describe("useCssPropTypes", () => {
+    const CONFIG_KEY = "__WC_STORYBOOK_HELPERS_CONFIG__";
+
+    beforeEach(() => {
+      (globalThis as any)[CONFIG_KEY] = { useCssPropTypes: true };
+    });
+
+    afterEach(() => {
+      delete (globalThis as any)[CONFIG_KEY];
+    });
+
+    it("uses the CEM type when useCssPropTypes is enabled, ignoring name heuristics", () => {
+      const { args } = getCssProperties(
+        makeComponent({
+          cssProperties: [
+            { name: "--profile-icon-colour", type: { text: "<string>" } } as never,
+          ],
+        }),
+      );
+      expect(args["--profile-icon-colour"].control).toBe("text");
+    });
+
+    it("still maps <color> to a color control", () => {
+      const { args } = getCssProperties(
+        makeComponent({
+          cssProperties: [
+            { name: "--border", type: { text: "<color>" } } as never,
+          ],
+        }),
+      );
+      expect(args["--border"].control).toBe("color");
+    });
+
+    it("still maps <number> to a number control", () => {
+      const { args } = getCssProperties(
+        makeComponent({
+          cssProperties: [
+            { name: "--colour-distance", type: { text: "<number>" } } as never,
+          ],
+        }),
+      );
+      expect(args["--colour-distance"].control).toBe("number");
+    });
+
+    it("falls back to text for unrecognised types like <string>", () => {
+      const { args } = getCssProperties(
+        makeComponent({
+          cssProperties: [
+            { name: "--accent", type: { text: "<string>" } } as never,
+          ],
+        }),
+      );
+      expect(args["--accent"].control).toBe("text");
+    });
+
+    it("ignores the 'color' name heuristic when useCssPropTypes is true", () => {
+      const { args } = getCssProperties(
+        makeComponent({
+          cssProperties: [
+            { name: "--primary-color" },
+          ],
+        }),
+      );
+      expect(args["--primary-color"].control).toBe("text");
+    });
   });
 });
 

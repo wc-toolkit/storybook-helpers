@@ -212,8 +212,16 @@ export function getCssProperties(
 }
 
 function getCssPropControl(property: CssCustomProperty): StorybookControl | undefined {
+  const config: StorybookHelpersOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
+
+  if (config.useCssPropTypes) {
+    if (type === "<color>") return "color";
+    if (type === "<integer>" || type === "<number>") return "number";
+    return "text";
+  }
+
   if (
     name?.includes("color") ||
     name?.includes("colour") ||
