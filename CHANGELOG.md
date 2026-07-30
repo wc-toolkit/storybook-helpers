@@ -1,5 +1,15 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.7.2
+
+### Patch Changes
+
+- 802ca09: Fix Storybook RangeControl crash when overriding number props with range control
+
+  - `cem-parser.ts`: coerce number defaults from string to actual Number type
+  - `storybook-helpers.ts`: fix `|| ""` fallback that swallowed falsy values like `0`
+  - `html-templates.ts`: parse attribute values as numbers in `syncControls` observer
+
 ## 10.7.1
 
 ### Patch Changes
