@@ -474,6 +474,17 @@ function setArgObserver(component: Component) {
             mutation.target as HTMLElement
           )?.hasAttribute(mutation.attributeName || ""),
         });
+      } else if (
+        attribute?.control === "number" ||
+        (attribute?.control as any)?.type === "number"
+      ) {
+        updateArgs({
+          [`${mutation.attributeName}`]: Number(
+            (mutation.target as HTMLElement).getAttribute(
+              mutation.attributeName || "",
+            ),
+          ),
+        });
       } else {
         updateArgs({
           [`${mutation.attributeName}`]: (

@@ -416,6 +416,10 @@ function getDefaultValue(control: StorybookControl, defaultValue?: string) {
   if (initialValue === "''" || initialValue === '""') {
     return "";
   }
+  if (controlType === "number") {
+    return initialValue === "" ? initialValue : Number(initialValue);
+  }
+
   if (controlType === "object" || controlType === "multi-select") {
     return initialValue
       ? JSON.parse(formatToValidJson(initialValue))
