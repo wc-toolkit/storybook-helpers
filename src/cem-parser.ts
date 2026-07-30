@@ -66,10 +66,11 @@ export function getAttributesAndProperties(
       ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
-    const { control, options, type: sbType } = getControl(
-      propType,
-      attribute !== undefined,
-    );
+    const {
+      control,
+      options,
+      type: sbType,
+    } = getControl(propType, attribute !== undefined);
     const defaultValue = member.readonly
       ? undefined
       : getDefaultValue(control, member.default);
@@ -77,7 +78,7 @@ export function getAttributesAndProperties(
     args[name] = {
       name: name,
       description: getDescription(
-        member.description,
+        (member as any).summary || member.description,
         propName,
         member.deprecated as string,
       ),
@@ -139,7 +140,7 @@ export function getReactProperties(
 
     args[propName] = {
       name: member.name,
-      description: member.description,
+      description: (member as any).summary || member.description,
       defaultValue,
       control: enabled && !member.readonly && control ? control : false,
       options,
@@ -169,7 +170,7 @@ export function getReactEvents(component?: Component): ArgSet {
     const eventName = `on${event.name}`;
     args[eventName] = {
       name: eventName,
-      description: event.description,
+      description: (event as any).summary || event.description,
       control: false,
       table: {
         category: "events",
@@ -199,7 +200,7 @@ export function getCssProperties(
   component?.cssProperties?.forEach((property) => {
     args[property.name] = {
       name: property.name,
-      description: property.description,
+      description: (property as any).summary || property.description,
       defaultValue: property.default,
       control: enabled ? getCssPropControl(property) : false,
       table: {
@@ -211,7 +212,9 @@ export function getCssProperties(
   return { resets, args };
 }
 
-function getCssPropControl(property: CssCustomProperty): StorybookControl | undefined {
+function getCssPropControl(
+  property: CssCustomProperty,
+): StorybookControl | undefined {
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
   if (
@@ -244,7 +247,7 @@ export function getCssParts(component?: Component, enabled = true): ArgSet {
     args[`${part.name}-part`] = {
       name: part.name,
       description: getDescription(
-        part.description,
+        (part as any).summary || part.description,
         enabled ? `${part.name}-part` : "",
       ),
       control: enabled ? "text" : false,
@@ -272,7 +275,7 @@ export function getCssStates(component?: Component, enabled = true): ArgSet {
     args[`${state.name}-state`] = {
       name: state.name,
       description: getDescription(
-        state.description,
+        (state as any).summary || state.description,
         enabled ? `${state.name}-state` : "",
       ),
       control: enabled ? "text" : false,
@@ -301,7 +304,7 @@ export function getSlots(component?: Component, enabled = true): ArgSet {
     args[`${slotName}-slot`] = {
       name: slotName,
       description: getDescription(
-        slot.description,
+        (slot as any).summary || slot.description,
         enabled ? `${slotName}-slot` : "",
       ),
       control: enabled ? "text" : false,
@@ -331,7 +334,7 @@ export function getEvents(component?: Component): ArgSet {
   events?.forEach((event) => {
     args[`${event.name}-event`] = {
       name: event.name,
-      description: event.description,
+      description: (event as any).summary || event.description,
       control: false,
       table: {
         category: "events",
@@ -352,7 +355,7 @@ export function getMethods(component?: Component): ArgSet {
   methods?.forEach((method) => {
     args[`${method.name}-method`] = {
       name: method.name,
-      description: method.description,
+      description: (method as any).summary || method.description,
       control: false,
       table: {
         category: "methods",
@@ -449,7 +452,7 @@ function getControl(
       };
 }
 
-function arrayOf(scalar: 'string' | 'number' | 'boolean') {
+function arrayOf(scalar: "string" | "number" | "boolean") {
   return { name: "array" as const, value: { name: scalar } };
 }
 
