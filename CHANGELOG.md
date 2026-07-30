@@ -1,5 +1,16 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.6.0
+
+### Minor Changes
+
+- 8068fa4: Improves mapping of types to Storybook controls and adds support for multi-select (array of values) properties
+
+### Patch Changes
+
+- f735d3e: Fixes an issue where the `path` module could inadvertently be eagerly loaded in a browser environment (and fail) by changing the call to a dynamic import.
+- 38e3a52: Prefer `@summary` over `description` when both are present in custom-elements-manifest
+
 ## 10.5.1
 
 ### Patch Changes

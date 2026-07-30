@@ -14,7 +14,10 @@ export interface CEMWatchOptions {
   enabled?: boolean;
 }
 
-async function resolveManifestPath(configDir?: string, override?: string): Promise<string> {
+async function resolveManifestPath(
+  configDir?: string,
+  override?: string,
+): Promise<string> {
   const path = await import("node:path");
   const base = configDir ? path.resolve(configDir) : process.cwd();
   return path.resolve(base, override || "custom-elements.json");
