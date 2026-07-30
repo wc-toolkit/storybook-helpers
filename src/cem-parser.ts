@@ -62,7 +62,6 @@ export function getAttributesAndProperties(
     }
 
     const name = attribute?.name || member.name;
-    const argRef = attribute?.name !== member.name ? member.name : undefined;
     const type = helpersOptions.typeRef
       ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
@@ -80,7 +79,7 @@ export function getAttributesAndProperties(
       name: name,
       description: getDescription(
         (member as any).summary || member.description,
-        argRef,
+        propName,
         member.deprecated as string,
       ),
       defaultValue,
@@ -97,6 +96,30 @@ export function getAttributesAndProperties(
       },
       type: sbType,
     };
+
+    if (attribute?.name && attribute.name !== member.name) {
+      propArgs[member.name] = {
+        name: member.name,
+        description: getDescription(
+          (member as any).summary || member.description,
+          member.name,
+          member.deprecated as string,
+        ),
+        defaultValue,
+        control: enabled && !member.readonly && control ? control : false,
+        options,
+        table: {
+          category: "properties",
+          defaultValue: {
+            summary: JSON.stringify(defaultValue),
+          },
+          type: {
+            summary: type,
+          },
+        },
+        type: sbType,
+      };
+    }
   });
 
   return { resets, propArgs, attrArgs };
