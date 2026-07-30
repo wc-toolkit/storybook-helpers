@@ -422,7 +422,10 @@ describe("getCssProperties", () => {
       const { args } = getCssProperties(
         makeComponent({
           cssProperties: [
-            { name: "--profile-icon-colour", type: { text: "<string>" } } as never,
+            {
+              name: "--profile-icon-colour",
+              type: { text: "<string>" },
+            } as never,
           ],
         }),
       );
@@ -465,9 +468,7 @@ describe("getCssProperties", () => {
     it("ignores the 'color' name heuristic when useCssPropTypes is true", () => {
       const { args } = getCssProperties(
         makeComponent({
-          cssProperties: [
-            { name: "--primary-color" },
-          ],
+          cssProperties: [{ name: "--primary-color" }],
         }),
       );
       expect(args["--primary-color"].control).toBe("text");

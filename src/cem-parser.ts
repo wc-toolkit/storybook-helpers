@@ -62,6 +62,7 @@ export function getAttributesAndProperties(
     }
 
     const name = attribute?.name || member.name;
+    const propName = attribute?.name !== member.name ? member.name : undefined;
     const type = helpersOptions.typeRef
       ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
       : member?.type?.text;
@@ -215,7 +216,8 @@ export function getCssProperties(
 function getCssPropControl(
   property: CssCustomProperty,
 ): StorybookControl | undefined {
-  const config: StorybookHelpersOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+  const config: StorybookHelpersOptions =
+    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
 
