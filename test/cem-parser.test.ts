@@ -129,6 +129,20 @@ describe("getAttributesAndProperties — object controls", () => {
     );
     expect(propArgs[FIELD].control).toBe("object");
   });
+
+  it("returns an falsy control for `function` properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("function", { default: undefined }),
+    );
+    expect(propArgs[FIELD].control).toBe(false);
+  });
+
+  it("returns an object control for `Function` (case-insensitive) properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("Function", { default: undefined }),
+    );
+    expect(propArgs[FIELD].control).toBe(false);
+  });
 });
 
 describe("getAttributesAndProperties — default values", () => {
@@ -198,9 +212,35 @@ describe("getAttributesAndProperties — default values", () => {
     expect(propArgs[FIELD].defaultValue).toEqual({ foo: "bar" });
   });
 
+  it("does not throw when an object-control field has an explicit undefined value", () => {
+    expect(() =>
+      getAttributesAndProperties(propComponent("Object", { default: "undefined" })),
+    ).not.toThrow();
+  });
+
+  it("returns undefined defaultValue for object members with undefined default value", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("object", { default: "undefined" }),
+    );
+    expect(propArgs[FIELD].defaultValue).toBe(undefined);
+  });
+
+  it("returns undefined defaultValue for object members with no default value", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("object"),
+    );
+    expect(propArgs[FIELD].defaultValue).toBe(undefined);
+  });
+
   it("does not throw when an object-control field has no default value", () => {
     expect(() =>
       getAttributesAndProperties(propComponent("Object")),
+    ).not.toThrow();
+  });
+
+  it("does not throw on a function field", () => {
+    expect(() =>
+      getAttributesAndProperties(propComponent("Function")),
     ).not.toThrow();
   });
 });
