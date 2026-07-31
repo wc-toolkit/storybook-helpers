@@ -193,6 +193,9 @@ function getArgs<T>(argTypes: ArgTypes): Partial<T> & { [key: string]: any } {
  */
 function getDefaultValue(value?: string | number | boolean | object) {
   if (typeof value === "string") {
+    if (value === "undefined") {
+      return undefined;
+    }
     try {
       return JSON.parse(value);
     } catch {

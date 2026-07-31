@@ -421,7 +421,7 @@ function getDefaultValue(control: StorybookControl, defaultValue?: string) {
   }
 
   if (controlType === "object" || controlType === "multi-select") {
-    return initialValue
+    return initialValue && initialValue !== "undefined"
       ? JSON.parse(formatToValidJson(initialValue))
       : undefined;
   }
@@ -437,7 +437,9 @@ function getControl(
   type?: ArgTypes[string]["type"];
 } {
   if (!type) {
-    return { control: "text", type: { name: "string" } };
+    return isAttribute
+      ? { control: "text", type: { name: "string" } }
+      : { control: false };
   }
 
   const arrayInner = parseArrayType(type);
@@ -472,6 +474,11 @@ function getControl(
     return arrayInner
       ? { control: "object", type: arrayOf("string") }
       : { control: "date", type: { name: "string" } };
+  }
+
+  if (hasType(options, "function")) {
+    // Storybook has no dedicated function type; disable control
+    return { control: false };
   }
 
   // base case, type is a union of literals
