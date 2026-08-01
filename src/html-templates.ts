@@ -390,7 +390,9 @@ function getSlotsTemplate(
 
       let slotContent = "";
       const container = document.createElement("div");
-      container.innerHTML = slotValue;
+      if (slotValue !== undefined) {
+        container.innerHTML = slotValue;
+      }
 
       for (const child of container.childNodes) {
         if (child instanceof Text) {
