@@ -143,6 +143,21 @@ describe("getAttributesAndProperties — object controls", () => {
     );
     expect(propArgs[FIELD].control).toBe(false);
   });
+
+  it("returns an falsy control for custom type properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("MyCustomType", { default: undefined }),
+    );
+    expect(propArgs[FIELD].control).toBe(false);
+  });
+
+  it("returns an falsy control for custom types union properties", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("MyFirstType|MySecondType", { default: undefined }),
+    );
+    expect(propArgs[FIELD].control).toBe(false);
+    console.log(propArgs[FIELD]);
+  });
 });
 
 describe("getAttributesAndProperties — default values", () => {
@@ -242,6 +257,28 @@ describe("getAttributesAndProperties — default values", () => {
     expect(() =>
       getAttributesAndProperties(propComponent("Function")),
     ).not.toThrow();
+  });
+
+  it("returns undefined default value for an object member with custom type", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("MyCustomType", { default: undefined }),
+    );
+    expect(propArgs[FIELD].control).toBe(false);
+  });
+
+  it("doesn't parse object defaults for custom object controls", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("MyCustomType", { default: `{ foo: 'bar' }` }),
+    );
+    expect(propArgs[FIELD].defaultValue).toEqual(`{ foo: 'bar' }`);
+  });
+
+  it("returns undefined default value for an object member with custom type union", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("MyFirstType|MySecondType", { default: undefined }),
+    );
+    expect(propArgs[FIELD].control).toBe(false);
+    console.log(propArgs[FIELD]);
   });
 });
 

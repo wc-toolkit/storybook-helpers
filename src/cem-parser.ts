@@ -71,7 +71,7 @@ export function getAttributesAndProperties(
       options,
       type: sbType,
     } = getControl(propType, attribute !== undefined);
-    const defaultValue = member.readonly
+    const defaultValue = member.readonly || sbType?.name === "other"
       ? undefined
       : getDefaultValue(control, member.default);
 
@@ -88,7 +88,7 @@ export function getAttributesAndProperties(
       table: {
         category: attribute ? "attributes" : "properties",
         defaultValue: {
-          summary: JSON.stringify(defaultValue),
+          summary: defaultValue && JSON.stringify(defaultValue),
         },
         type: {
           summary: type,
@@ -403,15 +403,22 @@ export function getMethods(component?: Component): ArgSet {
 }
 
 function getDefaultValue(control: StorybookControl, defaultValue?: string) {
-  const initialValue = removeQuotes(defaultValue || "");
   const controlType =
     typeof control === "string"
       ? control
       : typeof control === "object"
         ? control.type
         : undefined;
+  if (!controlType && defaultValue === undefined) {
+    // Worst case: we have no information
+    return undefined;
+  }
+  const initialValue = removeQuotes(defaultValue || "");
   if (controlType === "boolean") {
     return initialValue === "true";
+  }
+  if (initialValue === "undefined") {
+    return undefined;
   }
   if (initialValue === "''" || initialValue === '""') {
     return "";
@@ -478,6 +485,12 @@ function getControl(
 
   if (hasType(options, "function")) {
     // Storybook has no dedicated function type; disable control
+    return { control: false, type: {name: "other"} };
+  }
+
+  if (!arrayInner && !isEnum(type)) {
+    // Type is not an array like, not an enum and none of the above. It is assumed
+    // to be a custom type, therefore control is disabled because we cannot infer anything
     return { control: false };
   }
 
@@ -494,6 +507,14 @@ function getControl(
         options: enumValues,
         type: { name: "enum", value: enumValues },
       };
+}
+// matches -> 'one' | 'two' | 'three'
+const singleQuoteEnumRegex = /^\s*'(?:\\'|[^'])*'\s*(?:\|\s*'(?:\\'|[^'])*'\s*)*$/i;
+// matches -> "one" | "two" | "three"
+const doubleQuoteEnumRegex = /^\s*"(?:\\"|[^"])*"\s*(?:\|\s*"(?:\\"|[^"])*"\s*)*$/i;
+
+function isEnum(type: string): boolean {
+  return singleQuoteEnumRegex.test(type) || doubleQuoteEnumRegex.test(type);
 }
 
 function arrayOf(scalar: "string" | "number" | "boolean") {
