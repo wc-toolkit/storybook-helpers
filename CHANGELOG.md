@@ -1,5 +1,16 @@
 # @wc-toolkit/storybook-helpers
 
+## 10.7.3
+
+### Patch Changes
+
+- b0844e2: Fix slots with no content rendering 'undefined' as text node
+- f757fa3: Support handling non-primitive types with custom types
+
+  - `cem-parser.ts`: disable controls of non-primitive members, with custom types
+
+- 5bdcd77: fix #50 by improving support for non-primitive properties
+
 ## 10.7.2
 
 ### Patch Changes
