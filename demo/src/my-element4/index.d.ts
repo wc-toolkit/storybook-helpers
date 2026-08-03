@@ -1,1 +1,1 @@
-declare type RendererFunc = (v: string) => string
+declare type RendererFunc = (v: string) => string;

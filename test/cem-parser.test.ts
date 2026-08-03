@@ -229,7 +229,9 @@ describe("getAttributesAndProperties — default values", () => {
 
   it("does not throw when an object-control field has an explicit undefined value", () => {
     expect(() =>
-      getAttributesAndProperties(propComponent("Object", { default: "undefined" })),
+      getAttributesAndProperties(
+        propComponent("Object", { default: "undefined" }),
+      ),
     ).not.toThrow();
   });
 
@@ -241,9 +243,7 @@ describe("getAttributesAndProperties — default values", () => {
   });
 
   it("returns undefined defaultValue for object members with no default value", () => {
-    const { propArgs } = getAttributesAndProperties(
-      propComponent("object"),
-    );
+    const { propArgs } = getAttributesAndProperties(propComponent("object"));
     expect(propArgs[FIELD].defaultValue).toBe(undefined);
   });
 

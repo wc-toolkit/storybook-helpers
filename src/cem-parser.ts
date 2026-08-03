@@ -71,9 +71,10 @@ export function getAttributesAndProperties(
       options,
       type: sbType,
     } = getControl(propType, attribute !== undefined);
-    const defaultValue = member.readonly || sbType?.name === "other"
-      ? undefined
-      : getDefaultValue(control, member.default);
+    const defaultValue =
+      member.readonly || sbType?.name === "other"
+        ? undefined
+        : getDefaultValue(control, member.default);
 
     args[name] = {
       name: name,
@@ -485,7 +486,7 @@ function getControl(
 
   if (hasType(options, "function")) {
     // Storybook has no dedicated function type; disable control
-    return { control: false, type: {name: "other"} };
+    return { control: false, type: { name: "other" } };
   }
 
   if (!arrayInner && !isEnum(type)) {
@@ -509,9 +510,11 @@ function getControl(
       };
 }
 // matches -> 'one' | 'two' | 'three'
-const singleQuoteEnumRegex = /^\s*'(?:\\'|[^'])*'\s*(?:\|\s*'(?:\\'|[^'])*'\s*)*$/i;
+const singleQuoteEnumRegex =
+  /^\s*'(?:\\'|[^'])*'\s*(?:\|\s*'(?:\\'|[^'])*'\s*)*$/i;
 // matches -> "one" | "two" | "three"
-const doubleQuoteEnumRegex = /^\s*"(?:\\"|[^"])*"\s*(?:\|\s*"(?:\\"|[^"])*"\s*)*$/i;
+const doubleQuoteEnumRegex =
+  /^\s*"(?:\\"|[^"])*"\s*(?:\|\s*"(?:\\"|[^"])*"\s*)*$/i;
 
 function isEnum(type: string): boolean {
   return singleQuoteEnumRegex.test(type) || doubleQuoteEnumRegex.test(type);

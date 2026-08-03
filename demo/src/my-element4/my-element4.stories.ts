@@ -25,7 +25,7 @@ export const Default: StoryObj<MyElement4 & typeof args> = {
 export const WithArgs: StoryObj<MyElement4 & typeof args> = {
   render: (args) => template(args),
   args: {
-    objectNoAttribute: {someValue: 'Value set from Story args'},
-    functionNoAttribute: j => j * 5
-  }
+    objectNoAttribute: { someValue: "Value set from Story args" },
+    functionNoAttribute: (j) => j * 5,
+  },
 };
