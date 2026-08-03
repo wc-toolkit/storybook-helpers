@@ -32,6 +32,16 @@ export class MyElement4 extends LitElement {
   @property({type: Object, attribute: 'object-with-attribute'}) objectWithAttributeDefault = {test: 'test-value'};
 
   /**
+   * @type {Document}
+   */
+  @property({attribute: false}) objectCustomType = undefined;
+
+  /**
+   * @type {Document}
+   */
+  @property({attribute: false}) objectCustomTypeDefault = new Document();
+
+  /**
    * @type {Function}
    */
   @property({attribute: false}) functionNoAttribute = undefined;
@@ -40,6 +50,18 @@ export class MyElement4 extends LitElement {
    * @type {Function}
    */
   @property({attribute: false}) functionNoAttributeDefault = i => i + 2;
+
+  @property({attribute: false}) functionCustomType: RendererFunc;
+
+  /**
+   * @type {RendererFunc}
+   */
+  @property({attribute: false}) functionCustomTypeDefault = v => `prefix: ${v}`;
+
+  /**
+   * @type {"one" | "two" | "three"}
+   */
+  @property({type: String}) enumAttribute = undefined;
 
   render() {
     return html`
@@ -58,6 +80,10 @@ export class MyElement4 extends LitElement {
           ${this.__log('objectWithAttributeDefault')}
           ${this.__log('functionNoAttribute')}
           ${this.__log('functionNoAttributeDefault')}
+          ${this.__log('functionCustomType')}
+          ${this.__log('functionCustomTypeDefault')}
+          ${this.__log('objectCustomType')}
+          ${this.__log('objectCustomTypeDefault')}
           </tbody>
       </table>      
     `;
