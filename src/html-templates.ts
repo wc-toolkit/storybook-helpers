@@ -314,7 +314,7 @@ function getCssPartsTemplate(component: Component, args: any) {
     .map((key) => {
       const cssPartName = cssParts[key].name;
       const cssPartValue: string = args![key];
-      return cssPartValue.replace(/\s+/g, "") !== ""
+      return cssPartValue && cssPartValue.replace(/\s+/g, "") !== ""
         ? `  ${component?.tagName}::part(${cssPartName}) {
 ${cssPartValue
   .split(`\n`)
