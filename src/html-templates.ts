@@ -345,7 +345,7 @@ function getCssStatesTemplate(component: Component, args: any) {
     .map((key) => {
       const cssStateName = cssStates[key].name;
       const cssStateValue: string = args![key];
-      return cssStateValue.replace(/\s+/g, "") !== ""
+      return cssStateValue && cssStateValue.replace(/\s+/g, "") !== ""
         ? `  ${component?.tagName}:state(${cssStateName}) {
 ${cssStateValue
   .split(`\n`)

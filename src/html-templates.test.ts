@@ -62,3 +62,31 @@ describe("getStyleTemplate > CSS parts", () => {
     expect(html).toContain("color: red");
   });
 });
+
+describe("getStyleTemplate > CSS states", () => {
+  let getStyleTemplate: typeof import("./html-templates.js").getStyleTemplate;
+
+  beforeAll(async () => {
+    ({ getStyleTemplate } = await importFreshHtmlTemplates());
+  });
+
+  it("does not throw when a declared CSS state has no corresponding arg", () => {
+    const component = makeComponent({ cssStates: [{ name: "open" }] });
+    expect(() => getStyleTemplate(component, {})).not.toThrow();
+  });
+
+  it("omits the :state rule when its arg is absent", () => {
+    const component = makeComponent({ cssStates: [{ name: "open" }] });
+    const html = renderedHtml(getStyleTemplate(component, {}));
+    expect(html).not.toContain(":state(open)");
+  });
+
+  it("still emits the :state rule when its arg is set", () => {
+    const component = makeComponent({ cssStates: [{ name: "open" }] });
+    const html = renderedHtml(
+      getStyleTemplate(component, { "open-state": "display: block" }),
+    );
+    expect(html).toContain("test-element:state(open)");
+    expect(html).toContain("display: block");
+  });
+});
