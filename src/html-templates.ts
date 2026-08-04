@@ -314,7 +314,7 @@ function getCssPartsTemplate(component: Component, args: any) {
     .map((key) => {
       const cssPartName = cssParts[key].name;
       const cssPartValue: string = args![key];
-      return cssPartValue.replace(/\s+/g, "") !== ""
+      return cssPartValue && cssPartValue.replace(/\s+/g, "") !== ""
         ? `  ${component?.tagName}::part(${cssPartName}) {
 ${cssPartValue
   .split(`\n`)
@@ -345,7 +345,7 @@ function getCssStatesTemplate(component: Component, args: any) {
     .map((key) => {
       const cssStateName = cssStates[key].name;
       const cssStateValue: string = args![key];
-      return cssStateValue.replace(/\s+/g, "") !== ""
+      return cssStateValue && cssStateValue.replace(/\s+/g, "") !== ""
         ? `  ${component?.tagName}:state(${cssStateName}) {
 ${cssStateValue
   .split(`\n`)
