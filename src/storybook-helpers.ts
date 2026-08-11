@@ -178,9 +178,7 @@ function getArgs<T>(argTypes: ArgTypes): Partial<T> & { [key: string]: any } {
   for (const [key, value] of Object.entries(argTypes)) {
     if (value?.control) {
       const defaultValue = getDefaultValue(value.defaultValue);
-      if (defaultValue != null) {
-        args[key as keyof T] = defaultValue;
-      }
+      args[key as keyof T] = defaultValue == null ? "" : defaultValue;
     }
   }
   return args;
