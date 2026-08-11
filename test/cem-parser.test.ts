@@ -60,6 +60,26 @@ describe("getAttributesAndProperties — union of literals (select)", () => {
     );
     expect(attrArgs[FIELD].options).toEqual(["TopLeft", "BottomRight"]);
   });
+
+  it("resolves a union of string literals mixed with an object type to a select (#103)", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("'blub' | 'bla' | { test: 'string' }", {
+        default: "'bla'",
+      }),
+    );
+    expect(propArgs[FIELD].control).toBe("select");
+    expect(propArgs[FIELD].options).toEqual(["blub", "bla"]);
+  });
+
+  it("does not throw when an object-type union has a string literal default (#103)", () => {
+    expect(() =>
+      getAttributesAndProperties(
+        propComponent("'blub' | 'bla' | { test: 'string' }", {
+          default: "'bla'",
+        }),
+      ),
+    ).not.toThrow();
+  });
 });
 
 describe("getAttributesAndProperties — array of literal unions (multi-select)", () => {
@@ -251,6 +271,13 @@ describe("getAttributesAndProperties — default values", () => {
     expect(() =>
       getAttributesAndProperties(propComponent("Object")),
     ).not.toThrow();
+  });
+
+  it("returns the raw default when an object control default is not valid JSON (#103)", () => {
+    const { propArgs } = getAttributesAndProperties(
+      propComponent("Object", { default: "'bla'" }),
+    );
+    expect(propArgs[FIELD].defaultValue).toBe("bla");
   });
 
   it("does not throw on a function field", () => {
