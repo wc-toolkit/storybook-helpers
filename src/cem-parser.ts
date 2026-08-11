@@ -430,10 +430,18 @@ function getDefaultValue(control: StorybookControl, defaultValue?: string) {
 
   if (controlType === "object" || controlType === "multi-select") {
     return initialValue && initialValue !== "undefined"
-      ? JSON.parse(formatToValidJson(initialValue))
+      ? safelyParseJson(initialValue)
       : undefined;
   }
   return initialValue;
+}
+
+function safelyParseJson(input: string) {
+  try {
+    return JSON.parse(formatToValidJson(input));
+  } catch {
+    return input;
+  }
 }
 
 function getControl(
@@ -454,7 +462,18 @@ function getControl(
 
   const options = arrayInner ? parseOptions(arrayInner) : parseOptions(type);
 
-  if (!arrayInner && isObject(type) && !isAttribute) {
+  // A union may mix string literals with object/record members (e.g.
+  // `'blub' | 'bla' | { test: 'string' }`). Surface the string literals as
+  // select/multi-select options instead of falling back to an object control,
+  // which would otherwise try to JSON.parse a literal default value (see #103).
+  const literalOptions = options.filter(isStringLiteral);
+
+  if (
+    !arrayInner &&
+    isObject(type) &&
+    !isAttribute &&
+    literalOptions.length === 0
+  ) {
     return { control: "object", type: getObjectSBType(type) };
   }
 
@@ -489,14 +508,16 @@ function getControl(
     return { control: false, type: { name: "other" } };
   }
 
-  if (!arrayInner && !isEnum(type)) {
+  const hasMixedObjectUnion = literalOptions.length > 0 && isObject(type);
+
+  if (!arrayInner && !isEnum(type) && !hasMixedObjectUnion) {
     // Type is not an array like, not an enum and none of the above. It is assumed
     // to be a custom type, therefore control is disabled because we cannot infer anything
     return { control: false };
   }
 
-  // base case, type is a union of literals
-  const enumValues = options.map((option) => removeQuotes(option));
+  // base case, type is a union of literals (optionally mixed with object members)
+  const enumValues = literalOptions.map((option) => removeQuotes(option));
   return arrayInner
     ? {
         control: "multi-select",
@@ -518,6 +539,10 @@ const doubleQuoteEnumRegex =
 
 function isEnum(type: string): boolean {
   return singleQuoteEnumRegex.test(type) || doubleQuoteEnumRegex.test(type);
+}
+
+function isStringLiteral(option: string): boolean {
+  return option.startsWith("'") || option.startsWith('"');
 }
 
 function arrayOf(scalar: "string" | "number" | "boolean") {
