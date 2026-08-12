@@ -17,6 +17,21 @@ type ArgSet = {
 
 type StorybookControl = ArgTypes[string]["control"];
 
+/**
+ * Categories whose controls are synthetic "workarounds" rather than real
+ * component state: the arg's string value is freeform content (CSS or slot
+ * markup) that the template substitutes into a CSS rule or `<slot>`.
+ *
+ * These are the only categories that should fall back to an empty string when
+ * no default is set, so Storybook still renders an (empty) control without
+ * clobbering a component's own defaults.
+ */
+export const contentArgCategories = [
+  "css shadow parts",
+  "css states",
+  "slots",
+] as const;
+
 let helpersOptions: StorybookHelpersOptions = {};
 
 setTimeout(() => {
