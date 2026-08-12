@@ -7,6 +7,9 @@ const component = makeComponent({
     { name: "label", type: { text: "string" } },
     { name: "count", type: { text: "number" }, default: "0" },
     { name: "data", type: { text: "{ foo: 'bar' }" } },
+    { name: "renderer", type: { text: "() => string" } },
+    { name: "dataSet", type: { text: "Set<string>" } },
+    { name: "dataMap", type: { text: "Map<string, number>" } },
   ],
   attributes: [{ name: "label", fieldName: "label" }],
   slots: [{ name: "default", description: "default slot" }],
@@ -44,12 +47,17 @@ describe("getStorybookHelpers > getArgs", () => {
     args = mod.getStorybookHelpers("test-element").args;
   });
 
-  it("initializes args without a default value to an empty string", () => {
-    expect(args["label"]).toBe("");
+  it("initializes workaround controls without a default value to empty strings", () => {
     expect(args["default-slot"]).toBe("");
     expect(args["foo-part"]).toBe("");
     expect(args["open-state"]).toBe("");
-    expect(args["data"]).toBe("");
+  });
+
+  it("does not set args for attributes/properties without a default value", () => {
+    expect(args["data"]).toBeUndefined();
+    expect(args["renderer"]).toBeUndefined();
+    expect(args["dataSet"]).toBeUndefined();
+    expect(args["dataMap"]).toBeUndefined();
   });
 
   it("preserves falsy default values", () => {

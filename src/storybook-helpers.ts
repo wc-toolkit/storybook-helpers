@@ -11,6 +11,7 @@ import {
   getEvents,
   getCssStates,
   getMethods,
+  contentArgCategories,
 } from "./cem-parser.js";
 import { Component, getComponentByTagName } from "@wc-toolkit/cem-utilities";
 import type { ArgTypes } from "@storybook/web-components";
@@ -178,7 +179,13 @@ function getArgs<T>(argTypes: ArgTypes): Partial<T> & { [key: string]: any } {
   for (const [key, value] of Object.entries(argTypes)) {
     if (value?.control) {
       const defaultValue = getDefaultValue(value.defaultValue);
-      args[key as keyof T] = defaultValue == null ? "" : defaultValue;
+      if (defaultValue != null) {
+        args[key as keyof T] = defaultValue;
+      } else if (
+        contentArgCategories.some((c) => c === value?.table?.category)
+      ) {
+        (args as { [key: string]: any })[key] = "";
+      }
     }
   }
   return args;
