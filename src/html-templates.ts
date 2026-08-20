@@ -204,7 +204,7 @@ function excludeCategory(
  * @param args args object from Storybook story
  * @returns object of properties and attributes with their values
  */
-function getTemplateOperators(
+export function getTemplateOperators(
   component: Component,
   args: any,
   argTypes?: ArgTypes,
@@ -247,7 +247,10 @@ function getTemplateOperators(
     .filter((x) => !Object.keys(argTypes || {}).includes(x))
     .forEach((key) => {
       // exclude Storybook event listeners
-      if (!key.startsWith("on") && typeof args[key] !== "function") {
+      if (
+        key.startsWith("@") ||
+        (!key.startsWith("on") && typeof args[key] !== "function")
+      ) {
         additionalAttrs[key] = args[key];
       }
     });
