@@ -247,7 +247,10 @@ function getTemplateOperators(
     .filter((x) => !Object.keys(argTypes || {}).includes(x))
     .forEach((key) => {
       // exclude Storybook event listeners
-      if (!key.startsWith("on") && typeof args[key] !== "function") {
+      if (
+        key.startsWith("@") ||
+        (!key.startsWith("on") && typeof args[key] !== "function")
+      ) {
         additionalAttrs[key] = args[key];
       }
     });
