@@ -204,7 +204,7 @@ function excludeCategory(
  * @param args args object from Storybook story
  * @returns object of properties and attributes with their values
  */
-function getTemplateOperators(
+export function getTemplateOperators(
   component: Component,
   args: any,
   argTypes?: ArgTypes,

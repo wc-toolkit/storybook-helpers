@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
-import { transformToScoped } from "./html-templates.js";
+import { getTemplateOperators, transformToScoped } from "./html-templates.js";
 import { makeComponent } from "../test/helpers/make-component.js";
 
 describe("transformToScoped", () => {
@@ -88,5 +88,15 @@ describe("getStyleTemplate > CSS states", () => {
     );
     expect(html).toContain("test-element:state(open)");
     expect(html).toContain("display: block");
+  });
+});
+
+describe("getTemplateOperators", () => {
+  it("accepts functions as args with event prefix", () => {
+    const component = makeComponent({ events: [] });
+    const { additionalAttrs } = getTemplateOperators(component, {
+      "@click": function () {},
+    });
+    expect(typeof additionalAttrs["@click"]).toBe("function");
   });
 });
