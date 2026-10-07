@@ -634,7 +634,8 @@ function cleanUpType(type?: string): string {
         .replace(" | object", "|")
         .replace(" | Function", "|")
         .replace(" | {}", "|")
-        .replace(" | []", "|");
+        .replace(" | []", "|")
+        .replace(/\|\s*$/, "");
 }
 
 function getDescription(
