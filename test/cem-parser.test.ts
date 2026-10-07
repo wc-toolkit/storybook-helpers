@@ -730,3 +730,92 @@ describe("getReactProperties — Storybook type inference", () => {
     expect(args[FIELD].type).toEqual({ name: "object", value: {} });
   });
 });
+
+describe("union-widening-member: widened literal unions", () => {
+  it("keeps literal options when a string scalar widens the union", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      makeComponent({
+        fields: [
+          {
+            name: "text",
+            type: {
+              text: '"a" | "b" | string',
+            },
+            default: '"a"',
+          },
+        ],
+        attributes: [
+          {
+            name: "text",
+            type: {
+              text: '"a" | "b" | string',
+            },
+            default: '"a"',
+            fieldName: "text",
+          },
+        ],
+      }),
+    );
+
+    expect(attrArgs.text.control).toBe("select");
+    expect(attrArgs.text.options).toEqual(["a", "b"]);
+  });
+
+  it("keeps literal options when a branded string widens the union", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      makeComponent({
+        fields: [
+          {
+            name: "branded",
+            type: {
+              text: '"a" | "b" | (string & {})',
+            },
+            default: '"a"',
+          },
+        ],
+        attributes: [
+          {
+            name: "branded",
+            type: {
+              text: '"a" | "b" | (string & {})',
+            },
+            default: '"a"',
+            fieldName: "branded",
+          },
+        ],
+      }),
+    );
+
+    expect(attrArgs.branded.control).toBe("select");
+    expect(attrArgs.branded.options).toEqual(["a", "b"]);
+  });
+
+  it("keeps literal options when a number scalar widens the union", () => {
+    const { attrArgs } = getAttributesAndProperties(
+      makeComponent({
+        fields: [
+          {
+            name: "numberish",
+            type: {
+              text: '"a" | "b" | number',
+            },
+            default: '"a"',
+          },
+        ],
+        attributes: [
+          {
+            name: "numberish",
+            type: {
+              text: '"a" | "b" | number',
+            },
+            default: '"a"',
+            fieldName: "numberish",
+          },
+        ],
+      }),
+    );
+
+    expect(attrArgs.numberish.control).toBe("select");
+    expect(attrArgs.numberish.options).toEqual(["a", "b"]);
+  });
+});
