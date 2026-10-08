@@ -5,7 +5,18 @@
   "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "default": "./dist/core.js"
+    },
+    "./fast": {
+      "types": "./dist/fast.d.ts",
+      "default": "./dist/fast.js"
+    }
   },
   "files": [
     "index.js",
@@ -16,7 +27,7 @@
     "analyze": "npm run build && cem analyze",
     "analyze:dev": "cem analyze --watch",
     "changeset": "changeset add",
-    "build": "tsup src/index.ts --dts --format esm --tsconfig tsconfig.build.json",
+    "build": "tsup --entry.index src/index.ts --entry.core src/storybook-helpers.ts --entry.fast src/adapters/fast/index.ts --dts-resolve --format esm --no-splitting --clean --tsconfig tsconfig.build.json",
     "clean": "git clean -fdX",
     "deploy": "npm run build && npm publish",
     "dev": "concurrently -k -r \"npm run analyze:dev\" \"npm run storybook\"",
@@ -25,6 +36,8 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run analyze && vitest --run --passWithNoTests",
+    "test:fast": "npm --prefix test/fixtures/fast test",
+    "test:lit": "npm --prefix test/fixtures/lit test",
     "prepare": "husky",
     "release": "pnpm run build && changeset publish --access=public",
     "storybook": "storybook dev -c demo/.storybook -p 6006 --no-open",
@@ -41,6 +54,7 @@
   },
   "homepage": "https://wc-toolkit.com/documentation/storybook-helpers",
   "devDependencies": {
+    "@microsoft/fast-element": "2.10.5",
     "@changesets/cli": "^2.29.4",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@eslint/js": "^9.19.0",
@@ -57,6 +71,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-storybook": "^0.11.3",
     "husky": "^9.1.7",
+    "happy-dom": "^20.0.0",
     "lit": "^3.2.1",
     "prettier": "3.4.2",
     "storybook": "^10.1.11",
@@ -85,6 +100,7 @@
     "access": "public"
   },
   "peerDependencies": {
+    "@microsoft/fast-element": "^2.10.5",
     "lit": "^2.0.0 || ^3.0.0",
     "storybook": ">=10.1.11-0 <11.0.0-0"
   },
@@ -92,5 +108,13 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "peerDependenciesMeta": {
+    "@microsoft/fast-element": {
+      "optional": true
+    },
+    "lit": {
+      "optional": true
+    }
   }
 }

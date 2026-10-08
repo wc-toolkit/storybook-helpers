@@ -1,0 +1,23 @@
+{
+  "name": "storybook-helpers-fast-reproduction",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "storybook": "storybook dev -p 6007 --no-open",
+    "build": "storybook build",
+    "test": "node --test tests/acceptance.mjs",
+    "test:browser": "playwright test --config tests/playwright.config.js"
+  },
+  "devDependencies": {
+    "@storybook/addon-docs": "10.1.11",
+    "@microsoft/fast-element": "2.10.5",
+    "@playwright/test": "1.58.2",
+    "@storybook/html-vite": "10.1.11",
+    "@types/node": "24.10.0",
+    "@types/react": "19.0.10",
+    "storybook": "10.1.11",
+    "typescript": "5.7.3",
+    "vite": "6.1.0"
+  }
+}
