@@ -2,18 +2,18 @@ import { getHelperData } from "../../storybook-helpers.js";
 import type { StoryOptions, TemplateAdapters } from "../../types.js";
 import type { ViewTemplate } from "@microsoft/fast-element";
 import type { Args } from "./templates.js";
-import { getHtmlTemplates } from "./templates.js";
-import { getRender } from "./story.js";
+import { getHtmlTemplates, render } from "./templates.js";
 
 export { setStorybookHelpersConfig } from "../../config.js";
+export { render } from "./templates.js";
 export type * from "../../types.js";
 
 export type StoryHelpers<T> = ReturnType<typeof getHelperData<T>>["helpers"] &
   TemplateAdapters<Args<T>, ViewTemplate> & {
-    render: ReturnType<typeof getRender<T>>;
+    render: typeof render;
   };
 
-/** Generates FAST templates and an HTML/Vite renderer from component metadata. */
+/** Combines shared component metadata with FAST-native story templates. */
 export function getStorybookHelpers<T = HTMLElement>(
   tagName: string,
   options?: StoryOptions,
@@ -25,6 +25,6 @@ export function getStorybookHelpers<T = HTMLElement>(
     ...data.helpers,
     template: templates.getTemplate,
     styleTemplate: templates.getStyleTemplate,
-    render: getRender<T>(tagName, templates, options),
+    render,
   };
 }

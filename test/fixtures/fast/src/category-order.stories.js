@@ -11,9 +11,12 @@ setStorybookHelpersConfig({
   ...config,
   categoryOrder: ["slots", "properties"],
 });
-const { args, argTypes, render } = getStorybookHelpers("fast-greeting", {
-  excludeCategories: ["cssStates"],
-});
+const { args, argTypes, template, render } = getStorybookHelpers(
+  "fast-greeting",
+  {
+    excludeCategories: ["cssStates"],
+  },
+);
 setStorybookHelpersConfig(config);
 
 export default {
@@ -21,7 +24,7 @@ export default {
   tags: ["autodocs"],
   args,
   argTypes,
-  render,
+  render: (args) => render(template(args))(args),
   parameters: { controls: { sort: "none" } },
 };
 

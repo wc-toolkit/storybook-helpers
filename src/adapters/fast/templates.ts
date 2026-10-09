@@ -9,7 +9,6 @@ import {
 } from "@microsoft/fast-element";
 import type { AddViewBehaviorFactory, Binding } from "@microsoft/fast-element";
 import type { getHelperData } from "../../storybook-helpers.js";
-import { FastStory } from "./story.js";
 import {
   getAttributesAndProperties,
   getCssParts,
@@ -22,10 +21,25 @@ import { isCategoryEnabled } from "../categories.js";
 import { transformToScoped } from "../styles.js";
 
 export type Args<T> = Partial<T> & Record<string, unknown>;
-type BindingSource = Record<string, unknown> | FastStory;
 type StoryBinding = { name: string; binding: Binding };
 
 let instance = 0;
+
+/** Adapts a FAST template to Storybook's DOM renderer without a custom host. */
+export function render<TArgs = Record<string, unknown>>(
+  template: ViewTemplate<TArgs>,
+): (args: TArgs) => Element | DocumentFragment {
+  return (args) => {
+    const fragment = new DocumentFragment();
+    template.render(args, fragment);
+
+    if (fragment.childElementCount === 1) {
+      return fragment.firstElementChild!;
+    }
+
+    return fragment;
+  };
+}
 
 /**
  * Supplies manifest-derived binding names that cannot be written statically in html.
@@ -124,12 +138,8 @@ export function getHtmlTemplates<T>(
 
   /**
    * Maps manifest entries to FAST attribute, property and event bindings.
-   * Sources can be standalone args or the FastStory host containing those args.
    */
   function getTemplateOperators(args: Args<T>, scope: string) {
-    const sourceArgs = (source: BindingSource) =>
-      source instanceof FastStory ? source.args : source;
-
     const attributes = Object.entries(enabled("attributes") ? attrArgs : {})
       .filter(
         ([key, arg]) =>
@@ -141,8 +151,8 @@ export function getHtmlTemplates<T>(
 
         return {
           name: `${boolean ? "?" : ""}${arg.name}`,
-          binding: oneWay((source: BindingSource) => {
-            const value = sourceArgs(source)[key];
+          binding: oneWay((source: Args<T>) => {
+            const value = source[key];
 
             return boolean ? value !== "false" && Boolean(value) : value;
           }),
@@ -158,7 +168,7 @@ export function getHtmlTemplates<T>(
       )
       .map<StoryBinding>((key) => ({
         name: propArgs[key] && enabled("properties") ? `:${key}` : key,
-        binding: oneWay((source: BindingSource) => sourceArgs(source)[key]),
+        binding: oneWay((source: Args<T>) => source[key]),
       }));
 
     const events = (

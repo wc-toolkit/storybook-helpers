@@ -16,7 +16,7 @@ const styles: ViewTemplate | "" = helpers.styleTemplate();
 export const meta = {
   args: helpers.args,
   argTypes: helpers.argTypes,
-  render: helpers.render,
+  render: helpers.render(template),
 } satisfies Meta<Greeting>;
 
 export { template, styles };

@@ -150,7 +150,7 @@ describe("Lit > getStorybookHelpers", () => {
 });
 
 describe("FAST > getStorybookHelpers", () => {
-  it("provides native FAST templates and an HTML-renderer bridge", () => {
+  it("provides native FAST templates without a host renderer", () => {
     const fast = getFastHelpers("test-greeting", {
       manifest: manifest("Hello"),
     });

@@ -3,6 +3,10 @@
 Uses `/fast` helpers for metadata, generated FAST templates and rendering with
 `@storybook/html-vite`. **No Lit required.**
 
+The returned `render(template)` helper creates a Storybook render function without a custom host.
+It does not manage component-to-Controls updates, global component exposure, or
+view disposal.
+
 ## Run
 
 ```sh
@@ -42,7 +46,7 @@ Lit's CSS-part, CSS-state and scoped-style cases; run them with root `npm test`.
 
 ## Source
 
-- [Story](src/metadata.stories.js): generated helper renderer and control values.
+- [Story](src/metadata.stories.js): generated templates, fragment renderer, and control values.
 - [Component](src/fast-greeting.js): registered FAST template and styles.
 - [Preview](.storybook/preview.js): manifest configuration.
 

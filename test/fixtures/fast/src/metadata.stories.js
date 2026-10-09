@@ -1,13 +1,14 @@
 import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers/fast";
 import "./fast-greeting.js";
 
-const { args, argTypes, render } = getStorybookHelpers("fast-greeting");
+const { args, argTypes, template, render } =
+  getStorybookHelpers("fast-greeting");
 
 export default {
   title: "FAST/Metadata",
   args,
   argTypes,
-  render,
+  render: (args) => render(template(args))(args),
 };
 
 export const Default = {};

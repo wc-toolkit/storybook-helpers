@@ -133,28 +133,31 @@ import manifest from "../custom-elements.json" with { type: "json" };
 setStorybookHelpersConfig({ manifest });
 ```
 
-Use the generated renderer in your story:
+Use the returned `render` helper to produce DOM for Storybook:
 
 ```js
 // fast-greeting.stories.js
 import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers/fast";
 import "./fast-greeting.js";
 
-const { args, argTypes, render } = getStorybookHelpers("fast-greeting");
+const { args, argTypes, template, render } =
+  getStorybookHelpers("fast-greeting");
 
 export default {
   title: "Components/FAST Greeting",
   args,
   argTypes,
-  render,
+  render: (args) => render(template(args))(args),
 };
 
 export const Default = {};
 ```
 
-`render` handles FAST rendering, Actions, Controls updates, and cleanup.
-The helpers also return native FAST `template()` and `styleTemplate()` functions;
-your component's own template and styles stay unchanged.
+`render(viewTemplate)` returns a function that renders into a fragment and returns its single element
+or the fragment. The helpers return native FAST `template()` and `styleTemplate()`
+functions with Actions bindings; your component's own template and styles stay unchanged.
+Storybook args drive rendering. Component-to-Controls synchronization, global
+component exposure, and view disposal are not managed by this renderer.
 
 For metadata without either renderer, import from `/core`. The root import
 remains Lit-based.
