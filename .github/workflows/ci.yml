@@ -35,3 +35,19 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: Install FAST example dependencies
+        run: npm ci --prefix test/fixtures/fast
+
+      - name: Install Chromium
+        working-directory: test/fixtures/fast
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify packed consumer
+        run: pnpm test:fast
+
+      - name: Install Lit example dependencies
+        run: npm ci --prefix test/fixtures/lit
+
+      - name: Verify Lit Docs category ordering
+        run: pnpm test:lit

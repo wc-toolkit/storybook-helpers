@@ -67,6 +67,11 @@ Now that you have Storybook installed, you can install the helpers:
 npm i -D @wc-toolkit/storybook-helpers
 ```
 
+**Using the root import? You still need Lit.**
+`@storybook/web-components-vite` requires it already. Otherwise, run `npm i -D lit`.
+Lit is now an optional peer: if you relied on automatic installation, add it explicitly.
+The existing Lit template API is unchanged.
+
 Next, set the `setStorybookHelpersConfig` in the `.storybook/preview.ts` (or `.js`) file:
 
 ```ts
@@ -113,6 +118,52 @@ const meta: Meta<MyElement> = {
 };
 export default meta;
 ```
+
+### FASTElement
+
+Use `@storybook/html-vite` with `@microsoft/fast-element` 2.10.5+ (2.x)
+and import helpers from `/fast`. No Lit required.
+
+Configure your manifest in `.storybook/preview.js`:
+
+```js
+import { setStorybookHelpersConfig } from "@wc-toolkit/storybook-helpers/fast";
+import manifest from "../custom-elements.json" with { type: "json" };
+
+setStorybookHelpersConfig({ manifest });
+```
+
+Use the returned `render` helper to produce DOM for Storybook:
+
+```js
+// fast-greeting.stories.js
+import { getStorybookHelpers } from "@wc-toolkit/storybook-helpers/fast";
+import "./fast-greeting.js";
+
+const { args, argTypes, template, render } =
+  getStorybookHelpers("fast-greeting");
+
+export default {
+  title: "Components/FAST Greeting",
+  args,
+  argTypes,
+  render: (args) => render(template(args))(args),
+};
+
+export const Default = {};
+```
+
+`render(viewTemplate)` returns a function that renders into a fragment and returns its single element
+or the fragment. The helpers return native FAST `template()` and `styleTemplate()`
+functions with Actions bindings; your component's own template and styles stay unchanged.
+Storybook args drive rendering. Component-to-Controls synchronization, global
+component exposure, and view disposal are not managed by this renderer.
+
+For metadata without either renderer, import from `/core`. The root import
+remains Lit-based.
+
+See the [FAST fixture](test/fixtures/fast/README.md) or the matching
+[Lit fixture](test/fixtures/lit/README.md).
 
 ### Returned Values
 

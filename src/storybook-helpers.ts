@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult } from "lit";
-import { getStyleTemplate, getTemplate, logEvent } from "./html-templates.js";
+import { action } from "storybook/actions";
+import { defaultOptions } from "./config.js";
 import {
   getCssParts,
   getCssProperties,
@@ -14,61 +14,45 @@ import {
   contentArgCategories,
 } from "./cem-parser.js";
 import { Component, getComponentByTagName } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes } from "@storybook/web-components";
-import type {
-  Categories,
-  StorybookHelpersOptions,
-  StoryHelpers,
-  StoryOptions,
-} from "./types.js";
+import type { ArgTypes } from "storybook/internal/csf";
+import type { Categories, StoryOptions } from "./types.js";
 import type { Package } from "custom-elements-manifest";
 
-const defaultOptions: StorybookHelpersOptions = {
-  typeRef: "parsedType",
-  useScopedStyles: false,
-  categoryOrder: [
-    "attributes",
-    "properties",
-    "slots",
-    "cssProps",
-    "cssParts",
-    "cssStates",
-    "methods",
-    "events",
-  ],
-};
+export { setStorybookHelpersConfig } from "./config.js";
+export type * from "./types.js";
 
-let userOptions: StorybookHelpersOptions = {
-  ...defaultOptions,
-  ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
-};
+export function logEvent(name: string, event: Event) {
+  const eventData: Record<string, unknown> = {};
 
-/**
- * sets the global config for the Storybook helpers
- * @param options
- */
-export function setStorybookHelpersConfig(
-  options: StorybookHelpersOptions = {},
+  for (const key in event) {
+    try {
+      eventData[key] = event[key as keyof Event];
+    } catch {
+      // Skip properties that throw errors when accessed
+    }
+  }
+
+  action(name)(eventData);
+}
+
+/** Gets metadata without importing a component renderer. */
+export function getStorybookHelpers<T>(
+  tagName: string,
+  options?: StoryOptions,
 ) {
-  options = { ...defaultOptions, ...options };
-  (globalThis as any).__WC_STORYBOOK_HELPERS_CONFIG__ = options;
-  userOptions = options;
+  return getHelperData<T>(tagName, options).helpers;
 }
 
 /**
  * Gets Storybook helpers for a given component
  * @param tagName the tag name referenced in the Custom Elements Manifest
- * @returns An object containing the argTypes, reactArgTypes, events, styleTemplate, and template
+ * @returns The component and renderer-neutral metadata
  */
-export function getStorybookHelpers<T>(
-  tagName: string,
-  options?: StoryOptions,
-): StoryHelpers<T> {
-  userOptions = {
-    ...defaultOptions,
-    ...((globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {}),
-  };
-  const cem = getManifest();
+export function getHelperData<T>(tagName: string, options?: StoryOptions) {
+  const cem =
+    options?.manifest ||
+    globalThis.__WC_STORYBOOK_HELPERS_CONFIG__?.manifest ||
+    getManifest();
   const component = getComponent(cem, tagName);
   const eventNames = component?.events?.map((event) => event.name) || [];
   const argTypes = getArgTypes(component, options?.excludeCategories || []);
@@ -80,25 +64,15 @@ export function getStorybookHelpers<T>(
     reactArgTypes: getReactProps(component),
     events: eventNames,
     logEvent,
-    styleTemplate: (args?: any) =>
-      getStyleTemplate(component, args, options?.excludeCategories || []),
-    template: (args?: any, slot?: TemplateResult) =>
-      getTemplate(
-        component,
-        args,
-        slot,
-        argTypes,
-        options?.excludeCategories || [],
-        options?.setComponentVariable,
-      ),
   };
 
-  return helpers;
+  return { component, helpers };
 }
 
 function getManifest(): Package {
   /** Uses the global window.__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__ variable created by the Storybook `setCustomElementsManifest` method in the `preview` file */
-  const cem: Package = (window as any).__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__;
+  const cem: Package = (globalThis as any)
+    .__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__;
   if (!cem) {
     throw new Error(
       `Custom Elements Manifest not found. Be sure to follow the pre-install steps in this guide:\nhttps://www.npmjs.com/package/wc-storybook-helpers#before-you-install`,
@@ -107,7 +81,7 @@ function getManifest(): Package {
   return cem;
 }
 
-function getComponent(cem: Package, tagName: string): Component | undefined {
+function getComponent(cem: Package, tagName: string): Component {
   const component = getComponentByTagName(cem, tagName);
 
   if (!component) {
@@ -284,7 +258,8 @@ function getReactArgs(component?: Component): Record<string, any> {
  * @returns an array of Categories
  */
 function getCategoriesOrder(): Array<Categories> {
-  const configuredOrder = userOptions.categoryOrder || [];
+  const configuredOrder =
+    globalThis.__WC_STORYBOOK_HELPERS_CONFIG__?.categoryOrder || [];
   return [
     ...configuredOrder,
     ...defaultOptions.categoryOrder!.filter(

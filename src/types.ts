@@ -1,6 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult } from "lit";
-import type { ArgTypes } from "@storybook/web-components";
+import type { Package } from "custom-elements-manifest";
+
+/** Common template contract; adapters retain their native template and render types. */
+export type TemplateAdapters<TArgs, TTemplate, TStyleArgs = TArgs> = {
+  template: (args?: TArgs, slot?: TTemplate) => TTemplate;
+  styleTemplate: (args?: TStyleArgs) => TTemplate | "";
+};
 
 export type Categories =
   | "attributes"
@@ -13,6 +17,8 @@ export type Categories =
   | "slots";
 
 export type StorybookHelpersOptions = {
+  /** Explicit manifest for integrations without the web-components renderer. */
+  manifest?: Package;
   /** hides the `arg ref` label on each control */
   hideArgRef?: boolean;
   /** sets the custom type reference in the Custom Elements Manifest */
@@ -35,33 +41,10 @@ export type StorybookHelpersOptions = {
 export type Options = StorybookHelpersOptions;
 
 export type StoryOptions = {
+  /** Overrides the configured manifest for this component. */
+  manifest?: Package;
   /** Categories to exclude from these stories */
   excludeCategories?: Array<Categories>;
   /** Adds a <script> tag where a `component` variable will reference the story's component */
   setComponentVariable?: boolean;
-};
-
-export type StoryHelpers<T> = {
-  /** Default args for the component stories */
-  args: Partial<T> & { [key: string]: any };
-  /** ArgTypes configuration for Storybook controls */
-  argTypes: ArgTypes;
-  /** React-compatible args for React wrapper components */
-  reactArgs: Record<string, unknown>;
-  /** React-compatible argTypes for Storybook controls in React */
-  reactArgTypes: ArgTypes;
-  /** Function to log events emitted by the component in the "Actions" panel */
-  logEvent: (eventName: string, event: Event) => void;
-  /** Template function for rendering component styles */
-  styleTemplate: (args?: Record<string, unknown>) => TemplateResult | "";
-  /** Template function for rendering the component with args and optional slot content */
-  template: (
-    args?: Partial<T> & { [key: string]: any },
-    slot?: TemplateResult,
-  ) => TemplateResult;
-  /**
-   * List of custom events emitted by the component
-   * @deprecated adding events to the story's meta is no longer supported in v10. If you are using the `template` function to render your component, the events will be automatically bound. Otherwise, you can manually map them using the `logEvent` function.
-   */
-  events: string[];
 };

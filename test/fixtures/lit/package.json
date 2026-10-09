@@ -1,0 +1,21 @@
+{
+  "name": "storybook-helpers-lit-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "storybook": "storybook dev -p 6010 --no-open",
+    "build": "storybook build",
+    "preview": "vite preview --outDir storybook-static --port 6010 --strictPort",
+    "test": "node --test tests/acceptance.mjs",
+    "test:browser": "playwright test --config tests/playwright.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@storybook/addon-docs": "10.1.11",
+    "@storybook/web-components-vite": "10.1.11",
+    "lit": "3.2.1",
+    "storybook": "10.1.11",
+    "vite": "6.1.0"
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { makeComponent } from "../test/helpers/make-component.js";
+import { makeComponent } from "./helpers/make-component.js";
 import type { Package } from "custom-elements-manifest";
 
 const component = makeComponent({
@@ -43,7 +43,7 @@ describe("getStorybookHelpers > getArgs", () => {
     (
       globalThis as Record<string, unknown>
     ).__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__ = manifest;
-    const mod = await import("./storybook-helpers.js");
+    const mod = await import("../src/index.js");
     args = mod.getStorybookHelpers("test-element").args;
   });
 

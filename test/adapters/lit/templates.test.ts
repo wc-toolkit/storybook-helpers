@@ -1,23 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
-import { transformToScoped } from "./html-templates.js";
-import { makeComponent } from "../test/helpers/make-component.js";
-
-describe("transformToScoped", () => {
-  it("wraps root tag rules with @scope and replaces tag with :scope", () => {
-    const input = `my-element {\n  --card-border-color: #e50d0d;\n}`;
-    const out = transformToScoped(input, "my-element");
-    expect(out.startsWith("@scope (my-element)")).toBe(true);
-    expect(out).toContain("\n  :scope {");
-    expect(out).toContain("--card-border-color: #e50d0d");
-  });
-
-  it("replaces ::part and :state selectors correctly", () => {
-    const input = `my-element::part(foo) { color: red }\nmy-element:state(open) { display: block }`;
-    const out = transformToScoped(input, "my-element");
-    expect(out).toContain(":scope::part(foo)");
-    expect(out).toContain(":scope:state(open)");
-  });
-});
+import { makeComponent } from "../../helpers/make-component.js";
 
 async function importFreshHtmlTemplates() {
   (
@@ -26,7 +8,7 @@ async function importFreshHtmlTemplates() {
     categoryOrder: ["cssParts", "cssStates"],
   };
   vi.resetModules();
-  const mod = await import("./html-templates.js");
+  const mod = await import("../../../src/adapters/lit/templates.js");
   await new Promise((resolve) => setTimeout(resolve));
   return mod;
 }
@@ -36,7 +18,7 @@ function renderedHtml(result: unknown): string {
 }
 
 describe("getStyleTemplate > CSS parts", () => {
-  let getStyleTemplate: typeof import("./html-templates.js").getStyleTemplate;
+  let getStyleTemplate: typeof import("../../../src/adapters/lit/templates.js").getStyleTemplate;
 
   beforeAll(async () => {
     ({ getStyleTemplate } = await importFreshHtmlTemplates());
@@ -64,10 +46,50 @@ describe("getStyleTemplate > CSS parts", () => {
 });
 
 describe("getStyleTemplate > CSS states", () => {
-  let getStyleTemplate: typeof import("./html-templates.js").getStyleTemplate;
+  let getStyleTemplate: typeof import("../../../src/adapters/lit/templates.js").getStyleTemplate;
 
   beforeAll(async () => {
     ({ getStyleTemplate } = await importFreshHtmlTemplates());
+  });
+
+  describe("getTemplate > disabled observation", () => {
+    it("can generate a template outside Storybook when observation is disabled", async () => {
+      globalThis.__WC_STORYBOOK_HELPERS_CONFIG__ = {
+        disableArgObserver: true,
+      };
+      vi.resetModules();
+      const { getTemplate } = await import(
+        "../../../src/adapters/lit/templates.js"
+      );
+      await new Promise((resolve) => setTimeout(resolve));
+
+      try {
+        expect(() => getTemplate(makeComponent({}), {})).not.toThrow();
+      } finally {
+        delete globalThis.__WC_STORYBOOK_HELPERS_CONFIG__;
+      }
+    });
+
+    describe("getStyleTemplate > legacy category filtering", () => {
+      it("keeps styles disabled when the captured config has no category order", async () => {
+        globalThis.__WC_STORYBOOK_HELPERS_CONFIG__ = {};
+        vi.resetModules();
+        const { getStyleTemplate } = await import(
+          "../../../src/adapters/lit/templates.js"
+        );
+        await new Promise((resolve) => setTimeout(resolve));
+
+        try {
+          expect(
+            getStyleTemplate(makeComponent({ cssParts: [{ name: "foo" }] }), {
+              "foo-part": "color: red",
+            }),
+          ).toBe("");
+        } finally {
+          delete globalThis.__WC_STORYBOOK_HELPERS_CONFIG__;
+        }
+      });
+    });
   });
 
   it("does not throw when a declared CSS state has no corresponding arg", () => {

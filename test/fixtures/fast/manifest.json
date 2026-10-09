@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/fast-greeting.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "FastGreeting",
+          "tagName": "fast-greeting",
+          "customElement": true,
+          "members": [
+            {
+              "kind": "field",
+              "name": "label",
+              "type": { "text": "string" },
+              "default": "\"Hello FAST\""
+            },
+            {
+              "kind": "field",
+              "name": "count",
+              "type": { "text": "number" },
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": { "text": "boolean" },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "data",
+              "type": { "text": "object" },
+              "default": "{\"message\":\"Default data\"}"
+            }
+          ],
+          "attributes": [
+            { "name": "label", "fieldName": "label" },
+            { "name": "count", "fieldName": "count" },
+            { "name": "disabled", "fieldName": "disabled" }
+          ],
+          "events": [
+            {
+              "name": "greeting-change",
+              "type": { "text": "CustomEvent<string>" }
+            }
+          ],
+          "slots": [{ "name": "" }, { "name": "header" }],
+          "cssProperties": [{ "name": "--padding", "default": "8px" }],
+          "cssParts": [{ "name": "label" }],
+          "cssStates": [{ "name": "ready" }]
+        }
+      ]
+    }
+  ]
+}

@@ -1,72 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { spread } from "./spread.js";
-import { useArgs } from "storybook/preview-api";
+import { syncControls } from "../sync-controls.js";
 import { html, unsafeStatic } from "lit/static-html.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { TemplateResult } from "lit";
-import type { Categories, StorybookHelpersOptions } from "./types.js";
+import type { Categories, StorybookHelpersOptions } from "../../types.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes } from "@storybook/web-components";
+import type { ArgTypes } from "storybook/internal/csf";
 import {
   getAttributesAndProperties,
   getCssParts,
   getCssProperties,
   getCssStates,
   getSlots,
-} from "./cem-parser.js";
-import { action } from "storybook/actions";
+} from "../../cem-parser.js";
+import { logEvent } from "../../storybook-helpers.js";
+import { isCategoryEnabled } from "../categories.js";
+import { transformToScoped } from "../styles.js";
 
 let argObserver: MutationObserver | undefined;
-let lastTagName: string | undefined;
 let options: StorybookHelpersOptions = {};
 let storyCounter = 0;
+let observerTimer: ReturnType<typeof setTimeout> | undefined;
 
 setTimeout(() => {
   options = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
 });
-
-/**
- * Transform a generated CSS template so it targets the host instance via :scope
- * and wraps the rules in a CSS @scope block for the given tag.
- * This is exported for unit testing.
- */
-export function transformToScoped(template: string, tagSelector: string) {
-  if (!template || !tagSelector) return template;
-
-  const baseTag = tagSelector.split("[")[0];
-
-  // escape regex helper
-  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
-
-  let styleContent = template;
-
-  // Handle ::part and :state first using base tag
-  styleContent = styleContent.replace(
-    new RegExp(`${escapeRegExp(baseTag)}::part\\(`, "g"),
-    ":scope::part(",
-  );
-  styleContent = styleContent.replace(
-    new RegExp(`${escapeRegExp(baseTag)}:state\\(`, "g"),
-    ":scope:state(",
-  );
-
-  // Replace occurrences of the base tag used as the root selector at the start of a rule
-  styleContent = styleContent.replace(
-    new RegExp(
-      `(^|\\n)\\s*${escapeRegExp(baseTag)}(?=\\s*\\{|\\s|:|\\.|\\[|,|>|\\+|~)`,
-      "g",
-    ),
-    "$1:scope",
-  );
-
-  // As a fallback, replace any remaining standalone baseTag occurrences with :scope
-  styleContent = styleContent.replace(
-    new RegExp(escapeRegExp(baseTag), "g"),
-    ":scope",
-  );
-
-  return `@scope (${tagSelector}) {\n  ${styleContent}\n}`;
-}
 
 /**
  * Gets the template used to render the component in Storybook
@@ -85,12 +44,6 @@ export function getTemplate(
 ): TemplateResult {
   if (!args) {
     return html`<${unsafeStatic(component!.tagName!)}></${unsafeStatic(component!.tagName!)}>`;
-  }
-
-  // reset argObserver if the component changes
-  if (component?.tagName !== lastTagName) {
-    argObserver = undefined;
-    lastTagName = component?.tagName;
   }
 
   const ops = getTemplateOperators(component!, args, argTypes);
@@ -113,7 +66,18 @@ export function getTemplate(
     excludeCategories,
     scopeSelector,
   );
-  syncControls(component!);
+  clearTimeout(observerTimer);
+  argObserver?.disconnect();
+  if (!options.disableArgObserver) {
+    const observe = syncControls(
+      getAttributesAndProperties(component!).attrArgs,
+      args,
+    );
+    observerTimer = setTimeout(() => {
+      const element = document.querySelector<HTMLElement>(component!.tagName!);
+      if (element) argObserver = observe(element);
+    });
+  }
 
   return html`${styleTemplate}
 <${unsafeStatic(component!.tagName!)} ${spread(operators)}>${slotsTemplate}${slot || ""}</${unsafeStatic(component!.tagName!)}>
@@ -172,29 +136,13 @@ export function getStyleTemplate(
   return unsafeHTML(`<style>\n${styleContent}\n</style>`) as TemplateResult;
 }
 
-export function logEvent(name: string, event: Event) {
-  const eventData: Record<string, unknown> = {};
-
-  for (const key in event) {
-    try {
-      const value = event[key as keyof Event];
-      eventData[key] = value;
-    } catch {
-      // Skip properties that throw errors when accessed
-    }
-  }
-
-  action(name)(eventData);
-}
-
 function excludeCategory(
   category: Categories,
   excludeCategories?: Categories[],
 ) {
   return (
-    !options.categoryOrder?.includes(category) ||
-    excludeCategories?.includes(category as Categories) ||
-    false
+    !options.categoryOrder ||
+    !isCategoryEnabled(category, excludeCategories, options)
   );
 }
 
@@ -414,88 +362,4 @@ function getSlotsTemplate(
     .join("\n")}`;
 
   return slotTemplates.trim() ? unsafeStatic(`\n${slotTemplates}\n`) : "";
-}
-
-/**
- * Watches for changes to the component's attributes and properties and updates Storybook controls
- * @param component component object from the Custom Elements Manifest
- */
-function syncControls(component: Component) {
-  setArgObserver(component);
-
-  // wait for story to render before trying to attach the observer
-  setTimeout(() => {
-    const selectedComponent = document.querySelector(component.tagName!);
-    if (selectedComponent && argObserver) {
-      argObserver.observe(selectedComponent, {
-        attributes: true,
-      });
-    }
-  });
-}
-
-/**
- * Sets up the MutationObserver to sync the component's attributes and properties with Storybook controls
- * @param component component object from the Custom Elements Manifest
- */
-function setArgObserver(component: Component) {
-  if (options.disableArgObserver) {
-    return;
-  }
-
-  let isUpdating = false;
-  const updateArgs = useArgs()[1];
-  const { attrArgs: attributes } = getAttributesAndProperties(component);
-
-  if (argObserver) {
-    return;
-  }
-
-  argObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      // Prevent reacting to attribute changes we caused while updating args
-      if (isUpdating) return;
-
-      // Only sync attributes that are known from the component metadata
-      const attribute = attributes[`${mutation.attributeName}`];
-      if (!attribute) return;
-
-      // Special-case: if class changed and we're in the middle of updating, skip
-      if (mutation.attributeName === "class" && isUpdating) {
-        return;
-      }
-
-      isUpdating = true;
-
-      if (
-        attribute?.control === "boolean" ||
-        (attribute?.control as any)?.type === "boolean"
-      ) {
-        updateArgs({
-          [`${mutation.attributeName}`]: (
-            mutation.target as HTMLElement
-          )?.hasAttribute(mutation.attributeName || ""),
-        });
-      } else if (
-        attribute?.control === "number" ||
-        (attribute?.control as any)?.type === "number"
-      ) {
-        updateArgs({
-          [`${mutation.attributeName}`]: Number(
-            (mutation.target as HTMLElement).getAttribute(
-              mutation.attributeName || "",
-            ),
-          ),
-        });
-      } else {
-        updateArgs({
-          [`${mutation.attributeName}`]: (
-            mutation.target as HTMLElement
-          ).getAttribute(mutation.attributeName || ""),
-        });
-      }
-
-      isUpdating = false;
-    });
-  });
 }

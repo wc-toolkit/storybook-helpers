@@ -5,8 +5,8 @@ import {
   getMemberDescription,
   removeQuotes,
 } from "@wc-toolkit/cem-utilities";
-import type { ArgTypes } from "@storybook/web-components";
-import type { StorybookHelpersOptions } from "./types.js";
+import type { ArgTypes } from "storybook/internal/csf";
+import { defaultOptions } from "./config.js";
 import type { Component } from "@wc-toolkit/cem-utilities";
 import { CssCustomProperty } from "custom-elements-manifest";
 
@@ -32,12 +32,6 @@ export const contentArgCategories = [
   "slots",
 ] as const;
 
-let helpersOptions: StorybookHelpersOptions = {};
-
-setTimeout(() => {
-  helpersOptions = (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
-});
-
 export function getAttributesAndProperties(
   component?: Component,
   enabled = true,
@@ -49,6 +43,8 @@ export function getAttributesAndProperties(
   const resets: ArgTypes = {};
   const attrArgs: ArgTypes = {};
   const propArgs: ArgTypes = {};
+  const { typeRef } =
+    globalThis.__WC_STORYBOOK_HELPERS_CONFIG__ || defaultOptions;
 
   component?.members?.forEach((member) => {
     if (member.kind !== "field") {
@@ -77,8 +73,8 @@ export function getAttributesAndProperties(
     }
 
     const name = attribute?.name || member.name;
-    const type = helpersOptions.typeRef
-      ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
+    const type = typeRef
+      ? (member as any)[typeRef]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
     const {
@@ -87,7 +83,7 @@ export function getAttributesAndProperties(
       type: sbType,
     } = getControl(propType, attribute !== undefined);
     const defaultValue =
-      member.readonly || sbType?.name === "other"
+      member.readonly || (typeof sbType === "object" && sbType.name === "other")
         ? undefined
         : getDefaultValue(control, member.default);
 
@@ -147,6 +143,8 @@ export function getReactProperties(
 ): ArgSet {
   const resets: ArgTypes = {};
   const args: ArgTypes = {};
+  const { typeRef } =
+    globalThis.__WC_STORYBOOK_HELPERS_CONFIG__ || defaultOptions;
 
   component?.members?.forEach((member) => {
     if (member.kind !== "field") {
@@ -168,8 +166,8 @@ export function getReactProperties(
       return;
     }
 
-    const type = helpersOptions.typeRef
-      ? (member as any)[`${helpersOptions.typeRef}`]?.text || member?.type?.text
+    const type = typeRef
+      ? (member as any)[typeRef]?.text || member?.type?.text
       : member?.type?.text;
     const propType = cleanUpType(type);
     const propName = `${member.name}`;
@@ -255,12 +253,11 @@ export function getCssProperties(
 function getCssPropControl(
   property: CssCustomProperty,
 ): StorybookControl | undefined {
-  const config: StorybookHelpersOptions =
-    (globalThis as any)?.__WC_STORYBOOK_HELPERS_CONFIG__ || {};
+  const config = globalThis.__WC_STORYBOOK_HELPERS_CONFIG__;
   const type = (property as any).type?.text?.toLowerCase();
   const name = property.name?.toLowerCase();
 
-  if (config.useCssPropTypes) {
+  if (config?.useCssPropTypes) {
     if (type === "<color>") return "color";
     if (type === "<integer>" || type === "<number>") return "number";
     return "text";
@@ -520,7 +517,7 @@ function getControl(
 
   if (hasType(options, "function")) {
     // Storybook has no dedicated function type; disable control
-    return { control: false, type: { name: "other" } };
+    return { control: false, type: { name: "other", value: type } };
   }
 
   const hasMixedObjectUnion = literalOptions.length > 0 && isObject(type);
@@ -644,7 +641,7 @@ function getDescription(
 ) {
   let desc = getMemberDescription(description, deprecated);
 
-  return helpersOptions.hideArgRef || !argRef
+  return globalThis.__WC_STORYBOOK_HELPERS_CONFIG__?.hideArgRef || !argRef
     ? desc
     : (desc += `\n\n\narg ref - \`${argRef}\``);
 }
