@@ -224,11 +224,11 @@ export class SpreadDirective extends SpreadEventsDirective {
           }
           break;
         default:
-          // standard attribute
-          if (value) {
-            element.setAttribute(key, String(value));
-          } else {
+          // standard attribute, check for `null` and `undefined` leaves `0` and the empty string as they are
+          if (value === null || value === undefined) {
             element.removeAttribute(key);
+          } else {
+            element.setAttribute(key, String(value));
           }
           break;
       }
